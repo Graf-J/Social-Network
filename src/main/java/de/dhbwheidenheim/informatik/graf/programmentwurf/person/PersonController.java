@@ -39,7 +39,7 @@ public class PersonController {
 	 * @return The name of the view template, in this case, "persons", which will be rendered with the provided data.
 	*/
 	@GetMapping("/")
-	public String getPersonsView(Model model, @RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "10") String pageSize) {
+	public String getPersonsView(Model model, @RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "7") String pageSize) {
 		// Extract Pagination Parameters
 		Integer pageParam;
 		Integer pageSizeParam;
@@ -48,7 +48,7 @@ public class PersonController {
 			pageSizeParam = Integer.parseInt(pageSize);
 		} catch(NumberFormatException ex) {
 			pageParam = 0;
-			pageSizeParam = 10;
+			pageSizeParam = 7;
 		}
 		
 		// Calculate amount of Pages for Pagination-Rendering

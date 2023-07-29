@@ -47,4 +47,12 @@ public class PersonService {
 		
 		personRepository.save(person);
 	}
+	
+	public void addPersons(List<Person> persons) {
+		personRepository.saveAll(persons);
+	}
+	
+	public void deletePersons() {
+		personRepository.deleteAll();
+	}
 }

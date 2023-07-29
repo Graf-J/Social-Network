@@ -7,8 +7,10 @@
     <title>Persons</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <style>
         .table-wrapper {
@@ -37,15 +39,19 @@
                     <th>E-Mail</th>
                     <th>Birthday</th>
                     <th>Age</th>
+                    <th>Action</th>
                 </tr>
                 <c:forEach var="person" items="${ persons }">
                     <tr>
-                        <td>${person.id}</td>
-                        <td>${person.firstName}</td>
-                        <td>${person.lastName}</td>
-                        <td>${person.email}</td>
-                        <td>${person.birthday}</td>
-                        <td>${person.age}</td>
+                        <td>${ person.id }</td>
+                        <td>${ person.firstName }</td>
+                        <td>${ person.lastName }</td>
+                        <td>${ person.email }</td>
+                        <td>${ person.birthday }</td>
+                        <td>${ person.age }</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="window.location.href = 'person/${ person.id }'">View</button>
+                        </td>
                     </tr>
                 </c:forEach>
             </table>
@@ -65,5 +71,32 @@
                 Add new Person
             </button>
         </div>
+
+        <script>
+            window.onload = () => {
+                let error = "${error}";
+    
+                if (error) {
+                    Command: toastr["error"](error)
+                }
+    
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": false,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+            }
+        </script>
     </body>
 </html>

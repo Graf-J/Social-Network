@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="container" style="margin-left: calc(40% - 120px)">
-        <h1 class="p-3"> Add a Person</h1>
+        <h1 class="p-3"> Add Person</h1>
 
         <form:form action="/addPerson" method="post" modelAttribute="person">
 

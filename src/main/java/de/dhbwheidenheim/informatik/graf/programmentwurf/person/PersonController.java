@@ -1,6 +1,7 @@
 package de.dhbwheidenheim.informatik.graf.programmentwurf.person;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,7 +41,12 @@ public class PersonController {
 	 * @return The name of the view template, in this case, "persons", which will be rendered with the provided data.
 	*/
 	@GetMapping("/")
-	public String getPersonsView(Model model, @RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "7") String pageSize) {
+	public String getPersonsView(
+			Model model, 
+			@RequestParam(defaultValue = "0") String page, 
+			@RequestParam(defaultValue = "7") String pageSize, 
+			@ModelAttribute("error") String error
+	) {
 		// Extract Pagination Parameters
 		Integer pageParam;
 		Integer pageSizeParam;
@@ -66,6 +73,7 @@ public class PersonController {
 		
 		// Add Attributes to Model
 		model.addAttribute("persons", persons);
+		model.addAttribute("error", error);
 		model.addAttribute("pages", pages);
 		model.addAttribute("pageSize", pageSizeParam);
 		
@@ -75,6 +83,22 @@ public class PersonController {
 	@GetMapping("/all")
 	public @ResponseBody List<Person> getAllUsers() {
 		return personService.getPersons();
+	}
+	
+	@GetMapping("person/{id}")
+	public String getPersonView(Model model, RedirectAttributes redirectAttributes, @PathVariable Long id) {
+		Optional<Person> person = personService.getPerson(id);
+		
+		if (person.isEmpty()) {
+			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
+			
+			return "redirect:/";
+		}
+		
+		// Add Attributes to Model
+		model.addAttribute("person", person.get());
+		
+		return "personView";
 	}
 	
 	/**

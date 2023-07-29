@@ -2,6 +2,7 @@ package de.dhbwheidenheim.informatik.graf.programmentwurf.person;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,10 @@ public class PersonService {
 	
 	public Long getPersonCount() {
 		return personRepository.count();
+	}
+	
+	public Optional<Person> getPerson(Long id) {
+		return personRepository.findById(id);
 	}
 	
 	public List<Person> getPersons() {

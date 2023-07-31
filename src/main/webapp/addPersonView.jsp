@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="UTF-8"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
@@ -7,7 +6,7 @@
 
 <head>
     <meta charset="ISO-8859-1">
-    <title>Add Person</title>
+    <title>Person hinzufügen</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -18,13 +17,13 @@
 </head>
 <body>
     <div class="container" style="margin-left: calc(40% - 120px)">
-        <h1 class="p-3"> Add Person</h1>
+        <h1 class="p-3"> Person hinzufügen</h1>
 
         <form:form action="/addPerson" method="post" modelAttribute="person">
 
             <div class="row">
             	<div class="form-group col-md-12">
-            		<label class="col-md-3" for="firstName">First Name*</label>
+            		<label class="col-md-3" for="firstName">Vorname*</label>
             		<div class="col-md-6">
             		    <form:input type="text" path="firstName" id="firstName" class="form-control input-sm" required="required" />
             		</div>
@@ -33,7 +32,7 @@
             
             <div class="row">
             	<div class="form-group col-md-12">
-            		<label class="col-md-3" for="lastName">Last Name*</label>
+            		<label class="col-md-3" for="lastName">Nachname*</label>
             		<div class="col-md-6">
             			<form:input type="text" path="lastName" id="lastName" class="form-control input-sm" required="required" />
             		</div>
@@ -51,7 +50,7 @@
 
             <div class="row">
             	<div class="form-group col-md-12">
-            		<label class="col-md-3" for="date">Birthday*</label>
+            		<label class="col-md-3" for="date">Geburtstag*</label>
             		<div class="col-md-6">
             			<form:input type="date" path="birthday" id="birthday" class="form-control input-sm" required="required" />
             		</div>
@@ -59,8 +58,9 @@
             </div>
 
             <div class="row p-2">
-            	<div class="col-md-2">
-            		<button type="submit" value="Submit" class="btn btn-success">Save Person</button>
+            	<div class="col-md-6" style="display: flex; justify-content: space-between;">
+                    <button type="button" class="btn btn-danger" onclick="window.location.href='/'">Abbrechen</button>
+            		<button type="submit" value="Submit" class="btn btn-success">Person speichern</button>
             	</div>
             </div>
 

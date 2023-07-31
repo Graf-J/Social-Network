@@ -95,8 +95,11 @@ public class PersonController {
 			return "redirect:/";
 		}
 		
+		Optional<Person> spouse = personService.getSpouse(person.get());
+		
 		// Add Attributes to Model
 		model.addAttribute("person", person.get());
+		model.addAttribute("spouse", spouse);
 		
 		return "personView";
 	}
@@ -143,7 +146,7 @@ public class PersonController {
 			personService.addPerson(person);
 			
 			return "redirect:/";
-		} catch(Exception ex) {
+		} catch(IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			
 			return "redirect:/addPerson";

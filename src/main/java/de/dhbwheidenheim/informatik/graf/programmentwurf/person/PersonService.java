@@ -7,16 +7,20 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.Relation;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationRepository;
 
 @Service
 public class PersonService {
 	private final PersonRepository personRepository;
+	private final RelationRepository relationRepository;
 	
 	@Autowired
-	public PersonService(PersonRepository personRepository) {
+	public PersonService(PersonRepository personRepository, RelationRepository relationRepository) {
 		this.personRepository = personRepository;
+		this.relationRepository = relationRepository;
 	}
 	
 	public Long getPersonCount() {
@@ -27,12 +31,30 @@ public class PersonService {
 		return personRepository.findById(id);
 	}
 	
+	public Optional<Person> getPerson(String email) {
+		return personRepository.findByEmail(email);
+	}
+	
 	public List<Person> getPersons() {
 		return personRepository.findAll();
 	}
 	
 	public List<Person> getPersons(PageRequest pageRequest) {
 		return personRepository.findAll(pageRequest).getContent();
+	}
+	
+	public Optional<Person> getSpouse(Person person) {
+		Optional<Relation> relation = relationRepository.findMarriage(person);
+		
+		if (relation.isEmpty()) {
+			return Optional.empty();
+		}
+		
+		if (relation.get().getCreator().getId() == person.getId()) {
+			return Optional.of(relation.get().getReceiver());
+		} else {
+			return Optional.of(relation.get().getCreator());
+		}
 	}
 	
 	public void addPerson(Person person) {

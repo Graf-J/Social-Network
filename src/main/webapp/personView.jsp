@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
@@ -17,7 +17,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(2, 1fr);
-            height: 100vh;
+            height: calc(100vh - 57px);
         }
 
         .grid-item {
@@ -44,6 +44,9 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Personen-Liste-Ansicht</a>
+    </nav>
     <div class="grid-wrapper">
         <div class="grid-item">
             <div class="card" style="width: 90%">
@@ -56,6 +59,18 @@
                     <li class="list-group-item"><b>E-Mail: </b>${ person.email }</li>
                     <li class="list-group-item"><b>Geburtstag: </b>${ person.birthday }</li>
                     <li class="list-group-item"><b>Alter: </b>${ person.age}</li>
+                    <li class="list-group-item"><b>Ehepartner: </b>
+                        <c:if test="${ spouse.isPresent() }">
+                            <button class="btn btn-primary" onclick="window.location.href = '/person/${ spouse.get().getId() }'">
+                                ${ spouse.get().getFirstName() } ${ spouse.get().getLastName() }
+                            </button>
+                        </c:if>
+                        <c:if test="${ spouse.isEmpty() }">
+                            <button class="btn btn-warning" onclick="window.location.href='/addMarriage/${ person.getId() }'">
+                                Ehepartner hinzufügen
+                            </button>
+                        </c:if>
+                    </li>
                 </ul>
                 </div>
         </div>

@@ -24,26 +24,44 @@ public class Person {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(nullable = false)
+	@Column(
+		name = "first_name",
+		nullable = false
+	)
 	private String firstName;
 	
-	@Column(nullable = false)
+	@Column(
+		name = "last_name",
+		nullable = false
+	)
 	private String lastName;
 	
-	@Column(nullable = false, unique = true)
+	@Column(
+		name = "email",
+		nullable = false, 
+		unique = true
+	)
 	private String email;
 	
-	@Column(nullable = false)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Column(
+		name = "birthday",
+		nullable = false
+	)
 	private LocalDate birthday;
 	
-	@Column(nullable = false, updatable = false)
 	@CreationTimestamp
 	@JsonIgnore
+	@Column(
+		name = "created_at",
+		nullable = false, 
+		updatable = false
+	)
 	private LocalDateTime createdAt;
 	
 	@Transient
 	private Integer age;
+	
 
 	public Person() { }
 	

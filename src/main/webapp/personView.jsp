@@ -20,7 +20,7 @@
             height: calc(100vh - 57px);
         }
 
-        .grid-item {
+        .grid-item-flex {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -47,8 +47,9 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Personen-Liste-Ansicht</a>
     </nav>
+
     <div class="grid-wrapper">
-        <div class="grid-item">
+        <div class="grid-item-flex">
             <div class="card" style="width: 90%">
                 <div class="card-header">
                     <b>Person:${ person.id }</b>
@@ -74,10 +75,55 @@
                 </ul>
                 </div>
         </div>
-        <div class="grid-item green">Add Post</div>
-        <div class="grid-item blue" style="grid-row: span 2;">Posts</div>
-        <div class="grid-item yellow">Family</div>
-        <div class="grid-item orange">Friends</div>
+
+        <div class="grid-item-flex green">Add Post</div>
+
+        <div class="grid-item-flex blue" style="grid-row: span 2;">Posts</div>
+
+        <div class="p-3" style="display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h2>Familie</h2>
+                <button class="btn btn-warning" onclick="window.location.href='/addFamilyMember/${ person.id }'">
+                    Familienmitglied hinzufügen
+                </button>
+            </div>
+            <table class="table table-striped">
+                <tr>
+                    <th>Vorname</th>
+                    <th>Nachname</th>
+                    <th>Email</th>
+                    <th>Alter</th>
+                    <th>Aktion</th>
+                </tr>
+                <c:forEach var="familyMember" items="${ familyMembers }">
+                    <tr>
+                        <td>${ familyMember.firstName }</td>
+                        <td>${ familyMember.lastName }</td>
+                        <td>${ familyMember.email }</td>
+                        <td>${ familyMember.age }</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="window.location.href = '/person/${ familyMember.id }'">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </table>
+            <c:if test="${ familyMembers.size() != 0 }">
+                <div style="display: flex; justify-content: center">
+                    <h3>Pagination:</h3>
+                    <nav aria-label="Page navigation example" style="margin-left: 20px">
+                        <ul class="pagination">
+                            <c:forEach var="familyPage" items="${ familyPages }">
+                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?familyPage=${ familyPage }&familyPageSize=${ familyPageSize }">${ familyPage + 1 }</a></li>
+                            </c:forEach>
+                        </ul>
+                    </nav>
+                </div>
+            </c:if>
+        </div>
+
+        <div class="grid-item-flex orange">Friends</div>
     </div>
 </body>
 </html>

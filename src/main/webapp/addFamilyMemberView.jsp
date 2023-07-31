@@ -6,7 +6,7 @@
 
 <head>
     <meta charset="ISO-8859-1">
-    <title>Ehepartner hinzufügen</title>
+    <title>Familienmitglied hinzufügen</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -18,12 +18,12 @@
 <body>
     <div style="display: flex; justify-content: space-between; margin-top: 50px">
         <div style="width: 50vw; padding-left: 50px">
-            <h1 class="p-3">Ehepartner hinzufügen</h1>
+            <h1 class="p-3">Familienmitglied hinzufügen</h1>
 
-            <form:form action="/addMarriage/${ id }" method="post" modelAttribute="person">
+            <form:form action="/addFamilyMember/${ id }" method="post" modelAttribute="person">
                 <div class="row">
                     <div class="form-group col-md-12">
-                        <label class="col-md-6" for="email">E-Mail des Ehepartners*</label>
+                        <label class="col-md-6" for="email">E-Mail des Familienmitglieds*</label>
                         <div class="col-md-9">
                             <form:input type="text" path="email" id="email" class="form-control input-sm" required="required" />
                         </div>
@@ -33,7 +33,7 @@
                 <div class="row p-2">
                     <div class="col-md-9" style="display: flex; justify-content: space-between;">
                         <button type="button" class="btn btn-danger" onclick="window.location.href='/person/${ id }'">Abbrechen</button>
-                        <button type="submit" value="Submit" class="btn btn-success">Ehepartner speichern</button>
+                        <button type="submit" value="Submit" class="btn btn-success">Familienmitglied speichern</button>
                     </div>
                 </div>
             </form:form>
@@ -66,7 +66,7 @@
                 <nav aria-label="Page navigation example" style="margin-left: 20px">
                     <ul class="pagination">
                         <c:forEach var="page" items="${ pages }">
-                            <li class="page-item"><a class="page-link" href="/addMarriage/${ id }?page=${ page }&pageSize=${ pageSize }">${ page + 1 }</a></li>
+                            <li class="page-item"><a class="page-link" href="/addFamilyMember/${ id }?page=${ page }&pageSize=${ pageSize }">${ page + 1 }</a></li>
                         </c:forEach>
                     </ul>
                 </nav>

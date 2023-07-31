@@ -11,6 +11,11 @@ import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
 @Repository
 public interface RelationRepository extends JpaRepository<Relation, Long>{
 	@Query("SELECT r FROM Relation r " +
+		   "WHERE r.type = 'marriage' AND r.creator = ?1 " +
+		   "OR r.type = 'marriage' AND r.receiver = ?1")
+	Optional<Relation> findMarriage(Person person);
+	
+	@Query("SELECT r FROM Relation r " +
 	       "WHERE r.type = 'marriage' AND r.creator = ?1 " + 
 	       "OR r.type = 'marriage' AND r.receiver = ?1 " + 
 	       "OR r.type = 'marriage' AND r.creator = ?2 " + 
@@ -18,7 +23,7 @@ public interface RelationRepository extends JpaRepository<Relation, Long>{
 	Optional<Relation> findMarriage(Person creator, Person receiver);
 	
 	@Query("SELECT r FROM Relation r " +
-		   "WHERE r.type = 'marriage' AND r.creator = ?1 " +
-		   "OR r.type = 'marriage' AND r.receiver = ?1")
-	Optional<Relation> findMarriage(Person person);
+	       "WHERE r.type = 'family' AND r.creator = ?1 AND r.receiver = ?2 " + 
+	       "OR r.type = 'family' AND r.receiver = ?1 AND r.creator = ?2")
+	Optional<Relation> findFamily(Person creator, Person receiver);
 }

@@ -23,7 +23,7 @@ public class PersonService {
 		this.relationRepository = relationRepository;
 	}
 	
-	public Long getPersonCount() {
+	public Long countPersons() {
 		return personRepository.count();
 	}
 	
@@ -35,12 +35,12 @@ public class PersonService {
 		return personRepository.findByEmail(email);
 	}
 	
-	public List<Person> getPersons() {
-		return personRepository.findAll();
-	}
-	
 	public List<Person> getPersons(PageRequest pageRequest) {
 		return personRepository.findAll(pageRequest).getContent();
+	}
+	
+	public List<Person> getPersonsExcept(Person person, PageRequest pageRequest) {
+		return personRepository.findAllExcept(person, pageRequest);
 	}
 	
 	public Optional<Person> getSpouse(Person person) {
@@ -55,6 +55,30 @@ public class PersonService {
 		} else {
 			return Optional.of(relation.get().getCreator());
 		}
+	}
+	
+	public Long countSinglesExcept(Person person) {
+		return personRepository.countSinglesExcept(person);
+	}
+	
+	public List<Person> getSinglesExcept(Person person, PageRequest pageRequest) {
+		return personRepository.findSinglesExcept(person, pageRequest);
+	}
+	
+	public Long countFamilyMembers(Person person) {
+		return personRepository.countFamilyMembers(person);
+	}
+	
+	public List<Person> getFamilyMembers(Person person, PageRequest pageRequest) {
+		return personRepository.findFamilyMembers(person, pageRequest);
+	}
+	
+	public Long countNonFamilyMembers(Person person) {
+		return personRepository.countNonFamilyMembers(person);
+	}
+	
+	public List<Person> getNonFamilyMembers(Person person, PageRequest pageRequest) {
+		return personRepository.findNonFamilyMembers(person, pageRequest);
 	}
 	
 	public void addPerson(Person person) {

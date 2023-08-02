@@ -81,6 +81,22 @@ public class PersonService {
 		return personRepository.findNonFamilyMembers(person, pageRequest);
 	}
 	
+	public Long countFriends(Person person) {
+		return personRepository.countFriends(person);
+	}
+	
+	public List<Person> getFriends(Person person, PageRequest pageRequest) {
+		return personRepository.findFriends(person, pageRequest);
+	}
+	
+	public Long countNonFriends(Person person) {
+		return personRepository.countNonFriends(person);
+	}
+	
+	public List<Person> getNonFriends(Person person, PageRequest pageRequest) {
+		return personRepository.findNonFriends(person, pageRequest);
+	}
+	
 	public void addPerson(Person person) {
 		// Check if E-Mail is valid
 		String regexPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";

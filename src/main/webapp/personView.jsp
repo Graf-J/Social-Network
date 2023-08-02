@@ -37,10 +37,6 @@
         .yellow {
             background-color: yellow;
         }
-
-        .orange {
-            background-color: orange;
-        }
     </style>
 </head>
 <body>
@@ -123,7 +119,50 @@
             </c:if>
         </div>
 
-        <div class="grid-item-flex orange">Friends</div>
+        <div class="p-3" style="display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h2>Freunde</h2>
+                <button class="btn btn-warning" onclick="window.location.href='/addFriend/${ person.id }'">
+                    Freund hinzufügen
+                </button>
+            </div>
+            <table class="table table-striped">
+                <tr>
+                    <th>Vorname</th>
+                    <th>Nachname</th>
+                    <th>Email</th>
+                    <th>Alter</th>
+                    <th>Aktion</th>
+                </tr>
+                <c:forEach var="friend" items="${ friends }">
+                    <tr>
+                        <td>${ friend.firstName }</td>
+                        <td>${ friend.lastName }</td>
+                        <td>${ friend.email }</td>
+                        <td>${ friend.age }</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="window.location.href='/person/${ friend.id }'">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </table>
+            <c:if test="${ friends.size() != 0 }">
+                <div style="display: flex; justify-content: center">
+                    <h3>Pagination:</h3>
+                    <nav aria-label="Page navigation example" style="margin-left: 20px">
+                        <ul class="pagination">
+                            <c:forEach var="friendPage" items="${ friendPages }">
+                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?friendPage=${ friendPage }&friendPageSize=${ friendPageSize }">
+                                    ${ friendPage + 1 }
+                                </a></li>
+                            </c:forEach>
+                        </ul>
+                    </nav>
+                </div>
+            </c:if>
+        </div>
     </div>
 </body>
 </html>

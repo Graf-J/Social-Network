@@ -188,7 +188,7 @@ public class RelationController {
 		
 		if (receiverPerson.isEmpty()) {
 			redirectAttributes.addFlashAttribute("error", "Person with email " + person.getEmail() + " not found");
-			return "redirect:/addFamilyMember/" + id; 
+			return "redirect:/addFamilyMember/" + id;
 		}
 
 		// Create Family Member
@@ -197,7 +197,93 @@ public class RelationController {
 		} catch (IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			
-			return "redirect:/addMarriage/" + id;
+			return "redirect:/addFamilyMember/" + id;
+		}
+		
+		return "redirect:/person/" + id;
+	}
+	
+	@GetMapping("/addFriend/{id}")
+	public String getFriendView(
+		Model model,
+		RedirectAttributes redirectAttributes,
+		@RequestParam(defaultValue = "0") String page, 
+		@RequestParam(defaultValue = "7") String pageSize, 
+		@ModelAttribute("error") String error,
+		@PathVariable Long id
+	) {
+		Person person = new Person();
+		
+		// Extract Pagination Parameters
+		Integer pageParam;
+		Integer pageSizeParam;
+		try {
+			pageParam = Integer.parseInt(page);
+			pageSizeParam = Integer.parseInt(pageSize);
+		} catch(NumberFormatException ex) {
+			pageParam = 0;
+			pageSizeParam = 7;
+		}
+		
+		// Check if Person with Id of the URL exists
+		Optional<Person> queryPerson = personService.getPerson(id);
+		if (queryPerson.isEmpty()) {
+			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
+			return "redirect:/";
+		}
+		
+		// Calculate amount of Pages for Pagination-Rendering
+		Long personCount = personService.countNonFriends(queryPerson.get());
+		Integer numPages = (int)Math.ceil((double)personCount / (double)pageSizeParam);
+		List<Integer> pages = new ArrayList<>();
+		for (int i = 0; i < numPages; i++) {
+			pages.add(i);
+		}
+		
+		// Query for Persons for corresponding Page ordered by the First Name
+		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
+		PageRequest pageRequest = PageRequest.of(pageParam, pageSizeParam, sort);
+		List<Person> persons = personService.getNonFriends(queryPerson.get(), pageRequest);
+		
+		// Add Attributes to Model
+		model.addAttribute("id", id);
+		model.addAttribute("person", person);
+		model.addAttribute("persons", persons);
+		model.addAttribute("pages", pages);
+		model.addAttribute("pageSize", pageSizeParam);
+		model.addAttribute("error", error);
+		
+		return "addFriendView";
+	}
+	
+	@PostMapping("/addFriend/{id}")
+	public String addFriend(
+		Person person, 
+		RedirectAttributes redirectAttributes,
+		@PathVariable Long id
+	) {
+		// Check if Person with Id exists
+		Optional<Person> creatorPerson = personService.getPerson(id);
+		
+		if (creatorPerson.isEmpty()) {
+			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
+			return "redirect:/";
+		}
+		// Check if Creator Person exists
+		Optional<Person> receiverPerson = personService.getPerson(person.getEmail());
+		
+		if (receiverPerson.isEmpty()) {
+			redirectAttributes.addFlashAttribute("error", "Person with email " + person.getEmail() + " not found");
+			return "redirect:/addFriend/" + id;
+		}
+
+		// Create Friend Member
+		try {
+        	relationService.addFriendRelation(creatorPerson.get(), receiverPerson.get());
+		} catch (IllegalArgumentException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			
+			return "redirect:/addFriend/" + id;
 		}
 		
 		return "redirect:/person/" + id;

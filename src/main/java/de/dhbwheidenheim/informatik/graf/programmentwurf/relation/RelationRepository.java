@@ -26,4 +26,9 @@ public interface RelationRepository extends JpaRepository<Relation, Long>{
 	       "WHERE r.type = 'family' AND r.creator = ?1 AND r.receiver = ?2 " + 
 	       "OR r.type = 'family' AND r.receiver = ?1 AND r.creator = ?2")
 	Optional<Relation> findFamily(Person creator, Person receiver);
+	
+	@Query("SELECT r FROM Relation r " +
+	       "WHERE r.type = 'friend' AND r.creator = ?1 AND r.receiver = ?2 " + 
+	       "OR r.type = 'friend' AND r.receiver = ?1 AND r.creator = ?2")
+	Optional<Relation> findFriend(Person creator, Person receiver);
 }

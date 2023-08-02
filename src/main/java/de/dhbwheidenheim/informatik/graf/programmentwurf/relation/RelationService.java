@@ -62,7 +62,7 @@ public class RelationService {
 		// Check if Family Relation already exists
 		Optional<Relation> familyRelation = relationRepository.findFamily(creator, receiver);
 		if (familyRelation.isPresent()) {
-			throw new IllegalArgumentException("Family relation between " + creator.getFirstName() + " and " + receiver.getFirstName() + "already exists");
+			throw new IllegalArgumentException("Family relation between " + creator.getFirstName() + " and " + receiver.getFirstName() + " already exists");
 		}
 
 		List<Relation> relations = new ArrayList<>();
@@ -91,7 +91,13 @@ public class RelationService {
 	public void addFriendRelation(Person creator, Person receiver) {
 		// Check if the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
-			throw new IllegalArgumentException("You can't be in a family relation with yourself");
+			throw new IllegalArgumentException("You can't be in a friend relation with yourself");
+		}
+		
+		// Check if Friend Relation already exists
+		Optional<Relation> friendRelation = relationRepository.findFriend(creator, receiver);
+		if (friendRelation.isPresent()) {
+			throw new IllegalArgumentException("Friend relation between " + creator.getFirstName() + " and " + receiver.getFirstName() + " already exists");
 		}
 		
 		Relation relation = new Relation(creator, receiver, RelationType.friend);

@@ -1,12 +1,8 @@
 package de.dhbwheidenheim.informatik.graf.programmentwurf.relation;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.EmailNotFoundException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.RedirectException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.PaginationService;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.PersonService;
 
@@ -23,11 +24,17 @@ import de.dhbwheidenheim.informatik.graf.programmentwurf.person.PersonService;
 public class RelationController {
 	private final RelationService relationService;
 	private final PersonService personService;
+	private final PaginationService paginationService;
 	
 	@Autowired
-	public RelationController(RelationService relationService, PersonService personService) {
+	public RelationController(
+		RelationService relationService, 
+		PersonService personService,
+		PaginationService paginationService
+	) {
 		this.relationService = relationService;
 		this.personService = personService;
+		this.paginationService = paginationService;
 	}
 	
 	
@@ -40,48 +47,32 @@ public class RelationController {
 		@ModelAttribute("error") String error,
 		@PathVariable Long id
 	) {
-		Person person = new Person();
-		
-		// Extract Pagination Parameters
-		Integer pageParam;
-		Integer pageSizeParam;
 		try {
-			pageParam = Integer.parseInt(page);
-			pageSizeParam = Integer.parseInt(pageSize);
-		} catch(NumberFormatException ex) {
-			pageParam = 0;
-			pageSizeParam = 7;
-		}
-		
-		// Check if Person with Id of the URL exists
-		Optional<Person> queryPerson = personService.getPerson(id);
-		if (queryPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
+			Person person = new Person();
+			
+			// Get Person by ID and throw Exception if not exists
+			Person queryPerson = personService.getPerson(id)
+				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+			
+			// Get the Pagination Information
+			Long singlesCount = personService.countSinglesExcept(queryPerson);
+			Pagination pagination = paginationService.getPagination(page, pageSize, 7, singlesCount);
+			
+			// Query for Persons who are not married including Pagination and Sorting by First Name
+			List<Person> singles = personService.getSinglesExcept(queryPerson, pagination);
+			
+			// Add Attributes to Model
+			model.addAttribute("id", id);
+			model.addAttribute("person", person);
+			model.addAttribute("persons", singles);
+			model.addAttribute("pagination", pagination);
+			model.addAttribute("error", error);
+			
+			return "addMarriageView";
+		} catch (IdNotFoundException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:/";
 		}
-		
-		// Calculate amount of Pages for Pagination-Rendering
-		Long personCount = personService.countSinglesExcept(queryPerson.get());
-		Integer numPages = (int)Math.ceil((double)personCount / (double)pageSizeParam);
-		List<Integer> pages = new ArrayList<>();
-		for (int i = 0; i < numPages; i++) {
-			pages.add(i);
-		}
-		
-		// Query for Persons for corresponding Page ordered by the First Name
-		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
-		PageRequest pageRequest = PageRequest.of(pageParam, pageSizeParam, sort);
-		List<Person> persons = personService.getSinglesExcept(queryPerson.get(), pageRequest);
-		
-		// Add Attributes to Model
-		model.addAttribute("id", id);
-		model.addAttribute("person", person);
-		model.addAttribute("persons", persons);
-		model.addAttribute("pages", pages);
-		model.addAttribute("pageSize", pageSizeParam);
-		model.addAttribute("error", error);
-		
-		return "addMarriageView";
 	}
 	
 	@PostMapping("/addMarriage/{id}")
@@ -90,31 +81,23 @@ public class RelationController {
 		RedirectAttributes redirectAttributes,
 		@PathVariable Long id
 	) {
-		// Check if Person with Id exists
-		Optional<Person> creatorPerson = personService.getPerson(id);
-		
-		if (creatorPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
-			return "redirect:/";
-		}
-		// Check if Creator Person exists
-		Optional<Person> receiverPerson = personService.getPerson(person.getEmail());
-		
-		if (receiverPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with email " + person.getEmail() + " not found");
-			return "redirect:/addMarriage/" + id; 
-		}
-
-		// Create Marriage
 		try {
-        	relationService.addMarriageRelation(creatorPerson.get(), receiverPerson.get());
-		} catch (IllegalArgumentException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			Person creatorPerson = personService.getPerson(id)
+				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
 			
-			return "redirect:/addMarriage/" + id;
+			Person receiverPerson = personService.getPerson(person.getEmail())
+				.orElseThrow(() -> new EmailNotFoundException(id, "Person with email " + person.getEmail() + " not found"));
+	
+	        relationService.addMarriageRelation(creatorPerson, receiverPerson);
+			
+			return "redirect:/person/" + id;
+		} catch (IdNotFoundException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			return "redirect:/";
+		} catch (RedirectException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			return "redirect:/addMarriage/" + ex.getRedirectId(); 
 		}
-		
-		return "redirect:/person/" + id;
 	}
 	
 	@GetMapping("/addFamilyMember/{id}")
@@ -126,48 +109,32 @@ public class RelationController {
 		@ModelAttribute("error") String error,
 		@PathVariable Long id
 	) {
-		Person person = new Person();
-		
-		// Extract Pagination Parameters
-		Integer pageParam;
-		Integer pageSizeParam;
 		try {
-			pageParam = Integer.parseInt(page);
-			pageSizeParam = Integer.parseInt(pageSize);
-		} catch(NumberFormatException ex) {
-			pageParam = 0;
-			pageSizeParam = 7;
-		}
-		
-		// Check if Person with Id of the URL exists
-		Optional<Person> queryPerson = personService.getPerson(id);
-		if (queryPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
+			Person person = new Person();
+			
+			// Get Person by ID and throw Exception if not exists
+			Person queryPerson = personService.getPerson(id)
+				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+			
+			// Get the Pagination Information
+			Long familyMembersCount = personService.countNonFamilyMembers(queryPerson);
+			Pagination pagination = paginationService.getPagination(page, pageSize, 7, familyMembersCount);
+			
+			// Query for the Family Members including Pagination and Sorting by First Name
+			List<Person> persons = personService.getNonFamilyMembers(queryPerson, pagination);
+			
+			// Add Attributes to Model
+			model.addAttribute("id", id);
+			model.addAttribute("person", person);
+			model.addAttribute("persons", persons);
+			model.addAttribute("pagination", pagination);
+			model.addAttribute("error", error);
+			
+			return "addFamilyMemberView";
+		} catch (IdNotFoundException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:/";
 		}
-		
-		// Calculate amount of Pages for Pagination-Rendering
-		Long personCount = personService.countNonFamilyMembers(queryPerson.get());
-		Integer numPages = (int)Math.ceil((double)personCount / (double)pageSizeParam);
-		List<Integer> pages = new ArrayList<>();
-		for (int i = 0; i < numPages; i++) {
-			pages.add(i);
-		}
-		
-		// Query for Persons for corresponding Page ordered by the First Name
-		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
-		PageRequest pageRequest = PageRequest.of(pageParam, pageSizeParam, sort);
-		List<Person> persons = personService.getNonFamilyMembers(queryPerson.get(), pageRequest);
-		
-		// Add Attributes to Model
-		model.addAttribute("id", id);
-		model.addAttribute("person", person);
-		model.addAttribute("persons", persons);
-		model.addAttribute("pages", pages);
-		model.addAttribute("pageSize", pageSizeParam);
-		model.addAttribute("error", error);
-		
-		return "addFamilyMemberView";
 	}
 	
 	@PostMapping("/addFamilyMember/{id}")
@@ -176,31 +143,23 @@ public class RelationController {
 		RedirectAttributes redirectAttributes,
 		@PathVariable Long id
 	) {
-		// Check if Person with Id exists
-		Optional<Person> creatorPerson = personService.getPerson(id);
-		
-		if (creatorPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
-			return "redirect:/";
-		}
-		// Check if Creator Person exists
-		Optional<Person> receiverPerson = personService.getPerson(person.getEmail());
-		
-		if (receiverPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with email " + person.getEmail() + " not found");
-			return "redirect:/addFamilyMember/" + id;
-		}
-
-		// Create Family Member
 		try {
-        	relationService.addFamilyRelation(creatorPerson.get(), receiverPerson.get());
-		} catch (IllegalArgumentException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			Person creatorPerson = personService.getPerson(id)
+				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
 			
-			return "redirect:/addFamilyMember/" + id;
+			Person receiverPerson = personService.getPerson(person.getEmail())
+				.orElseThrow(() -> new EmailNotFoundException(id, "Person with email " + person.getEmail() + " not found"));
+	
+	        relationService.addFamilyRelation(creatorPerson, receiverPerson);
+			
+			return "redirect:/person/" + id;
+		} catch (IdNotFoundException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			return "redirect:/";
+		} catch (RedirectException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			return "redirect:/addFamilyMember/" + ex.getRedirectId(); 
 		}
-		
-		return "redirect:/person/" + id;
 	}
 	
 	@GetMapping("/addFriend/{id}")
@@ -212,48 +171,32 @@ public class RelationController {
 		@ModelAttribute("error") String error,
 		@PathVariable Long id
 	) {
-		Person person = new Person();
-		
-		// Extract Pagination Parameters
-		Integer pageParam;
-		Integer pageSizeParam;
 		try {
-			pageParam = Integer.parseInt(page);
-			pageSizeParam = Integer.parseInt(pageSize);
-		} catch(NumberFormatException ex) {
-			pageParam = 0;
-			pageSizeParam = 7;
-		}
-		
-		// Check if Person with Id of the URL exists
-		Optional<Person> queryPerson = personService.getPerson(id);
-		if (queryPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
+			Person person = new Person();
+			
+			// Get Person by ID and throw Exception if not exists
+			Person queryPerson = personService.getPerson(id)
+				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+						
+			// Get the Pagination Information
+			Long friendsCount = personService.countNonFriends(queryPerson);
+			Pagination pagination = paginationService.getPagination(page, pageSize, 7, friendsCount);
+			
+			// Query for Friends including Pagination and Sorting by First Name
+			List<Person> persons = personService.getNonFriends(queryPerson, pagination);
+			
+			// Add Attributes to Model
+			model.addAttribute("id", id);
+			model.addAttribute("person", person);
+			model.addAttribute("persons", persons);
+			model.addAttribute("pagination", pagination);
+			model.addAttribute("error", error);
+			
+			return "addFriendView";
+		} catch (IdNotFoundException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:/";
 		}
-		
-		// Calculate amount of Pages for Pagination-Rendering
-		Long personCount = personService.countNonFriends(queryPerson.get());
-		Integer numPages = (int)Math.ceil((double)personCount / (double)pageSizeParam);
-		List<Integer> pages = new ArrayList<>();
-		for (int i = 0; i < numPages; i++) {
-			pages.add(i);
-		}
-		
-		// Query for Persons for corresponding Page ordered by the First Name
-		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
-		PageRequest pageRequest = PageRequest.of(pageParam, pageSizeParam, sort);
-		List<Person> persons = personService.getNonFriends(queryPerson.get(), pageRequest);
-		
-		// Add Attributes to Model
-		model.addAttribute("id", id);
-		model.addAttribute("person", person);
-		model.addAttribute("persons", persons);
-		model.addAttribute("pages", pages);
-		model.addAttribute("pageSize", pageSizeParam);
-		model.addAttribute("error", error);
-		
-		return "addFriendView";
 	}
 	
 	@PostMapping("/addFriend/{id}")
@@ -262,30 +205,22 @@ public class RelationController {
 		RedirectAttributes redirectAttributes,
 		@PathVariable Long id
 	) {
-		// Check if Person with Id exists
-		Optional<Person> creatorPerson = personService.getPerson(id);
-		
-		if (creatorPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
-			return "redirect:/";
-		}
-		// Check if Creator Person exists
-		Optional<Person> receiverPerson = personService.getPerson(person.getEmail());
-		
-		if (receiverPerson.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with email " + person.getEmail() + " not found");
-			return "redirect:/addFriend/" + id;
-		}
-
-		// Create Friend Member
 		try {
-        	relationService.addFriendRelation(creatorPerson.get(), receiverPerson.get());
-		} catch (IllegalArgumentException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			Person creatorPerson = personService.getPerson(id)
+				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
 			
-			return "redirect:/addFriend/" + id;
+			Person receiverPerson = personService.getPerson(person.getEmail())
+				.orElseThrow(() -> new EmailNotFoundException(id, "Person with email " + person.getEmail() + " not found"));
+	
+	        relationService.addFriendRelation(creatorPerson, receiverPerson);
+			
+			return "redirect:/person/" + id;
+		} catch (IdNotFoundException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			return "redirect:/";
+		} catch (RedirectException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+			return "redirect:/addFriend/" + ex.getRedirectId(); 
 		}
-		
-		return "redirect:/person/" + id;
 	}
 }

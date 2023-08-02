@@ -7,8 +7,10 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.Relation;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationRepository;
 
@@ -61,7 +63,10 @@ public class PersonService {
 		return personRepository.countSinglesExcept(person);
 	}
 	
-	public List<Person> getSinglesExcept(Person person, PageRequest pageRequest) {
+	public List<Person> getSinglesExcept(Person person, Pagination pagination) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
+		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
+		
 		return personRepository.findSinglesExcept(person, pageRequest);
 	}
 	
@@ -77,7 +82,10 @@ public class PersonService {
 		return personRepository.countNonFamilyMembers(person);
 	}
 	
-	public List<Person> getNonFamilyMembers(Person person, PageRequest pageRequest) {
+	public List<Person> getNonFamilyMembers(Person person, Pagination pagination) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
+		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
+		
 		return personRepository.findNonFamilyMembers(person, pageRequest);
 	}
 	
@@ -93,7 +101,10 @@ public class PersonService {
 		return personRepository.countNonFriends(person);
 	}
 	
-	public List<Person> getNonFriends(Person person, PageRequest pageRequest) {
+	public List<Person> getNonFriends(Person person, Pagination pagination) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
+		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
+		
 		return personRepository.findNonFriends(person, pageRequest);
 	}
 	

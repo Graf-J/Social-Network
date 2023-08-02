@@ -59,7 +59,7 @@ public class PersonController {
 		}
 		
 		// Calculate amount of Pages for Pagination-Rendering
-		Long personCount = personService.getPersonCount();
+		Long personCount = personService.countPersons();
 		Integer numPages = (int)Math.ceil((double)personCount / (double)pageSizeParam);
 		List<Integer> pages = new ArrayList<>();
 		for (int i = 0; i < numPages; i++) {
@@ -80,23 +80,82 @@ public class PersonController {
 		return "personsView";
 	}
 	
-	@GetMapping("/all")
-	public @ResponseBody List<Person> getAllUsers() {
-		return personService.getPersons();
-	}
+	// @GetMapping("/all")
+	// public @ResponseBody List<Person> getAllUsers() {
+	// 	return personService.getPersons();
+	// }
 	
 	@GetMapping("person/{id}")
-	public String getPersonView(Model model, RedirectAttributes redirectAttributes, @PathVariable Long id) {
-		Optional<Person> person = personService.getPerson(id);
+	public String getPersonView(
+		Model model,
+		@RequestParam(defaultValue = "0") String familyPage, 
+		@RequestParam(defaultValue = "4") String familyPageSize, 
+		@RequestParam(defaultValue = "0") String friendPage, 
+		@RequestParam(defaultValue = "4") String friendPageSize, 
+		RedirectAttributes redirectAttributes,
+		@PathVariable Long id
+	) {
+		// Extract Pagination Parameters
+		Integer familyPageParam;
+		Integer familyPageSizeParam;
+		Integer friendPageParam;
+		Integer friendPageSizeParam;
+		try {
+			familyPageParam = Integer.parseInt(familyPage);
+			familyPageSizeParam = Integer.parseInt(familyPageSize);
+			friendPageParam = Integer.parseInt(friendPage);
+			friendPageSizeParam = Integer.parseInt(friendPageSize);
+		} catch(NumberFormatException ex) {
+			familyPageParam = 0;
+			familyPageSizeParam = 4;
+			friendPageParam = 0;
+			friendPageSizeParam = 4;
+		}
 		
+		// Check if person with id exists
+		Optional<Person> person = personService.getPerson(id);
 		if (person.isEmpty()) {
 			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
 			
 			return "redirect:/";
 		}
 		
+		// Get the husband / wife of the Person
+		Optional<Person> spouse = personService.getSpouse(person.get());
+		
+		// Get the Pagination information of the Family Members
+		Long familyMemberCount = personService.countFamilyMembers(person.get());
+		Integer familyNumPages = (int)Math.ceil((double)familyMemberCount / (double)familyPageSizeParam);
+		List<Integer> familyPages = new ArrayList<>();
+		for (int i = 0; i < familyNumPages; i++) {
+			familyPages.add(i);
+		}
+		// Query for the Family Members with the Pagination Parameters
+		Sort familySort = Sort.by(Sort.Direction.DESC, "createdAt");
+		PageRequest familyPageRequest = PageRequest.of(familyPageParam, familyPageSizeParam, familySort);
+		List<Person> familyMembers = personService.getFamilyMembers(person.get(), familyPageRequest);
+		
+		// Get the Pagination information of the Friends
+		Long friendMemberCount = personService.countFriends(person.get());
+		Integer friendNumPages = (int)Math.ceil((double)friendMemberCount / (double)friendPageSizeParam);
+		List<Integer> friendPages = new ArrayList<>();
+		for (int i = 0; i < friendNumPages; i++) {
+			friendPages.add(i);
+		}
+		// Query for the Friends with the Pagination Parameters
+		Sort friendSort = Sort.by(Sort.Direction.DESC, "createdAt");
+		PageRequest friendPageRequest = PageRequest.of(friendPageParam, friendPageSizeParam, friendSort);
+		List<Person> friends = personService.getFriends(person.get(), friendPageRequest);
+				
 		// Add Attributes to Model
 		model.addAttribute("person", person.get());
+		model.addAttribute("spouse", spouse);
+		model.addAttribute("familyMembers", familyMembers);
+		model.addAttribute("familyPages", familyPages);
+		model.addAttribute("familyPageSize", familyPageSizeParam);
+		model.addAttribute("friends", friends);
+		model.addAttribute("friendPages", friendPages);
+		model.addAttribute("friendPageSize", friendPageSizeParam);
 		
 		return "personView";
 	}
@@ -143,7 +202,7 @@ public class PersonController {
 			personService.addPerson(person);
 			
 			return "redirect:/";
-		} catch(Exception ex) {
+		} catch(IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			
 			return "redirect:/addPerson";

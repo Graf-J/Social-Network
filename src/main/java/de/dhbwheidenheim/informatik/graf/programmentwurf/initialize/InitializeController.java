@@ -2,7 +2,6 @@ package de.dhbwheidenheim.informatik.graf.programmentwurf.initialize;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -16,7 +15,6 @@ public class InitializeController {
 	private final RelationService relationService;
 	private final InitializeService initializeService;
 	
-	@Autowired
 	public InitializeController(
 		PersonService personService, 
 		InitializeService initializeService,

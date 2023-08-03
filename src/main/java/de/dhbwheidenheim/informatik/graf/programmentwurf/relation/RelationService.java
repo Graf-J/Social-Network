@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.InvalidRelationException;
@@ -16,7 +15,6 @@ public class RelationService {
 	private final RelationRepository relationRepository;
 	private final PersonRepository personRepository;
 	
-	@Autowired
 	public RelationService(RelationRepository relationRepository, PersonRepository personRepository) {
 		this.relationRepository = relationRepository;
 		this.personRepository = personRepository;

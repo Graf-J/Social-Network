@@ -110,8 +110,8 @@
                     <h3>Pagination:</h3>
                     <nav aria-label="Page navigation example" style="margin-left: 20px">
                         <ul class="pagination">
-                            <c:forEach var="familyPage" items="${ familyPages }">
-                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?familyPage=${ familyPage }&familyPageSize=${ familyPageSize }">${ familyPage + 1 }</a></li>
+                            <c:forEach var="page" begin="1" end="${ familyPagination.numPages }">
+                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?familyPage=${ page - 1 }&familyPageSize=${ familyPagination.pageSize }">${ page }</a></li>
                             </c:forEach>
                         </ul>
                     </nav>
@@ -153,10 +153,8 @@
                     <h3>Pagination:</h3>
                     <nav aria-label="Page navigation example" style="margin-left: 20px">
                         <ul class="pagination">
-                            <c:forEach var="friendPage" items="${ friendPages }">
-                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?friendPage=${ friendPage }&friendPageSize=${ friendPageSize }">
-                                    ${ friendPage + 1 }
-                                </a></li>
+                            <c:forEach var="page" begin="1" end="${ friendPagination.numPages }">
+                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?friendPage=${ page - 1 }&friendPageSize=${ friendPagination.pageSize }">${ page }</a></li>
                             </c:forEach>
                         </ul>
                     </nav>

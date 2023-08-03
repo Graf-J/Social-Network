@@ -59,8 +59,8 @@
             <h3>Pagination:</h3>
             <nav aria-label="Page navigation example" style="margin-left: 20px">
                 <ul class="pagination">
-                    <c:forEach var="page" items="${ pages }">
-                        <li class="page-item"><a class="page-link" href="/?page=${ page }&pageSize=${ pageSize }">${ page + 1 }</a></li>
+                    <c:forEach var="page" begin="1" end="${ pagination.numPages }">
+                        <li class="page-item"><a class="page-link" href="/${ id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a></li>
                     </c:forEach>
                 </ul>
             </nav>

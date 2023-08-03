@@ -2,11 +2,7 @@ package de.dhbwheidenheim.informatik.graf.programmentwurf.person;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.ArrayList;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +13,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.PaginationService;
+
 
 @Controller
 public class PersonController {
 	private final PersonService personService;
+	private final PaginationService paginationService;
 	
-	@Autowired
-	public PersonController(PersonService personService) {
+	public PersonController(PersonService personService, PaginationService paginationService) {
 		this.personService = personService;
+		this.paginationService = paginationService;
 	}
 	
 	/**
@@ -48,34 +49,16 @@ public class PersonController {
 			@ModelAttribute("error") String error
 	) {
 		// Extract Pagination Parameters
-		Integer pageParam;
-		Integer pageSizeParam;
-		try {
-			pageParam = Integer.parseInt(page);
-			pageSizeParam = Integer.parseInt(pageSize);
-		} catch(NumberFormatException ex) {
-			pageParam = 0;
-			pageSizeParam = 7;
-		}
-		
-		// Calculate amount of Pages for Pagination-Rendering
 		Long personCount = personService.countPersons();
-		Integer numPages = (int)Math.ceil((double)personCount / (double)pageSizeParam);
-		List<Integer> pages = new ArrayList<>();
-		for (int i = 0; i < numPages; i++) {
-			pages.add(i);
-		}
+		Pagination pagination = paginationService.getPagination(page, pageSize, 7, personCount);
 		
-		// Query for Persons for corresponding Page in descending order
-		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		PageRequest pageRequest = PageRequest.of(pageParam, pageSizeParam, sort);
-		List<Person> persons = personService.getPersons(pageRequest);
+		// Query for Persons for corresponding Page Order by createdAt in Descending Order
+		List<Person> persons = personService.getPersons(pagination);
 		
 		// Add Attributes to Model
 		model.addAttribute("persons", persons);
 		model.addAttribute("error", error);
-		model.addAttribute("pages", pages);
-		model.addAttribute("pageSize", pageSizeParam);
+		model.addAttribute("pagination", pagination);
 		
 		return "personsView";
 	}
@@ -95,69 +78,38 @@ public class PersonController {
 		RedirectAttributes redirectAttributes,
 		@PathVariable Long id
 	) {
-		// Extract Pagination Parameters
-		Integer familyPageParam;
-		Integer familyPageSizeParam;
-		Integer friendPageParam;
-		Integer friendPageSizeParam;
 		try {
-			familyPageParam = Integer.parseInt(familyPage);
-			familyPageSizeParam = Integer.parseInt(familyPageSize);
-			friendPageParam = Integer.parseInt(friendPage);
-			friendPageSizeParam = Integer.parseInt(friendPageSize);
-		} catch(NumberFormatException ex) {
-			familyPageParam = 0;
-			familyPageSizeParam = 4;
-			friendPageParam = 0;
-			friendPageSizeParam = 4;
-		}
-		
-		// Check if person with id exists
-		Optional<Person> person = personService.getPerson(id);
-		if (person.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Person with Id " + id + " not found");
+			// Get Person by ID and throw Exception if not exists
+			Person person = personService.getPerson(id)
+				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
 			
+			// Extract  Family Pagination Parameters
+			Long familyMemberCount = personService.countFamilyMembers(person);
+			Pagination familyPagination = paginationService.getPagination(familyPage, familyPageSize, 4, familyMemberCount);
+			// Extract  Friend Pagination Parameters
+			Long friendCount = personService.countFriends(person);
+			Pagination friendPagination = paginationService.getPagination(friendPage, friendPageSize, 4, friendCount);
+			
+			// Get the husband / wife of the Person
+			Optional<Person> spouse = personService.getSpouse(person);
+			// Query for the Family Members Page Ordered By CreatedAt Descending
+			List<Person> familyMembers = personService.getFamilyMembers(person, familyPagination);
+			// Query for the Friends Page Ordered By CreatedAt Descending
+			List<Person> friends = personService.getFriends(person, friendPagination);
+					
+			// Add Attributes to Model
+			model.addAttribute("person", person);
+			model.addAttribute("spouse", spouse);
+			model.addAttribute("familyMembers", familyMembers);
+			model.addAttribute("familyPagination", familyPagination);
+			model.addAttribute("friends", friends);
+			model.addAttribute("friendPagination", friendPagination);
+			
+			return "personView";
+		} catch (IdNotFoundException ex) {
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:/";
 		}
-		
-		// Get the husband / wife of the Person
-		Optional<Person> spouse = personService.getSpouse(person.get());
-		
-		// Get the Pagination information of the Family Members
-		Long familyMemberCount = personService.countFamilyMembers(person.get());
-		Integer familyNumPages = (int)Math.ceil((double)familyMemberCount / (double)familyPageSizeParam);
-		List<Integer> familyPages = new ArrayList<>();
-		for (int i = 0; i < familyNumPages; i++) {
-			familyPages.add(i);
-		}
-		// Query for the Family Members with the Pagination Parameters
-		Sort familySort = Sort.by(Sort.Direction.DESC, "createdAt");
-		PageRequest familyPageRequest = PageRequest.of(familyPageParam, familyPageSizeParam, familySort);
-		List<Person> familyMembers = personService.getFamilyMembers(person.get(), familyPageRequest);
-		
-		// Get the Pagination information of the Friends
-		Long friendMemberCount = personService.countFriends(person.get());
-		Integer friendNumPages = (int)Math.ceil((double)friendMemberCount / (double)friendPageSizeParam);
-		List<Integer> friendPages = new ArrayList<>();
-		for (int i = 0; i < friendNumPages; i++) {
-			friendPages.add(i);
-		}
-		// Query for the Friends with the Pagination Parameters
-		Sort friendSort = Sort.by(Sort.Direction.DESC, "createdAt");
-		PageRequest friendPageRequest = PageRequest.of(friendPageParam, friendPageSizeParam, friendSort);
-		List<Person> friends = personService.getFriends(person.get(), friendPageRequest);
-				
-		// Add Attributes to Model
-		model.addAttribute("person", person.get());
-		model.addAttribute("spouse", spouse);
-		model.addAttribute("familyMembers", familyMembers);
-		model.addAttribute("familyPages", familyPages);
-		model.addAttribute("familyPageSize", familyPageSizeParam);
-		model.addAttribute("friends", friends);
-		model.addAttribute("friendPages", friendPages);
-		model.addAttribute("friendPageSize", friendPageSizeParam);
-		
-		return "personView";
 	}
 	
 	/**

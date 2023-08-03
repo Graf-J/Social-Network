@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ public class PersonService {
 	private final PersonRepository personRepository;
 	private final RelationRepository relationRepository;
 	
-	@Autowired
 	public PersonService(PersonRepository personRepository, RelationRepository relationRepository) {
 		this.personRepository = personRepository;
 		this.relationRepository = relationRepository;
@@ -37,7 +35,10 @@ public class PersonService {
 		return personRepository.findByEmail(email);
 	}
 	
-	public List<Person> getPersons(PageRequest pageRequest) {
+	public List<Person> getPersons(Pagination pagination) {
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
+		
 		return personRepository.findAll(pageRequest).getContent();
 	}
 	
@@ -74,7 +75,10 @@ public class PersonService {
 		return personRepository.countFamilyMembers(person);
 	}
 	
-	public List<Person> getFamilyMembers(Person person, PageRequest pageRequest) {
+	public List<Person> getFamilyMembers(Person person, Pagination pagination) {
+		Sort familySort = Sort.by(Sort.Direction.DESC, "createdAt");
+		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), familySort);
+		
 		return personRepository.findFamilyMembers(person, pageRequest);
 	}
 	
@@ -93,7 +97,10 @@ public class PersonService {
 		return personRepository.countFriends(person);
 	}
 	
-	public List<Person> getFriends(Person person, PageRequest pageRequest) {
+	public List<Person> getFriends(Person person, Pagination pagination) {
+		Sort friendSort = Sort.by(Sort.Direction.DESC, "createdAt");
+		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), friendSort);
+		
 		return personRepository.findFriends(person, pageRequest);
 	}
 	

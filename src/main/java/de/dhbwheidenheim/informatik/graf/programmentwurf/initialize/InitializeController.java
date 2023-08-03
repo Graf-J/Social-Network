@@ -27,11 +27,13 @@ public class InitializeController {
 	
 	@GetMapping("/initialize")
 	public String initialize() {
+		// Delete old Data
 		relationService.deleteRelations();
-		
 		personService.deletePersons();
-		List<Person> persons = initializeService.getPersons();
-		personService.addPersons(persons);
+		
+		// Insert new Data
+		List<Person> persons = initializeService.createPersons();
+		initializeService.createRelations(persons);
 		
 		return "redirect:/";
 	}

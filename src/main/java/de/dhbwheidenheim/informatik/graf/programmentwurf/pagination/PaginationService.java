@@ -22,7 +22,8 @@ public class PaginationService {
 	
 	private Integer parseInt(String stringValue, Integer fallbackValue) {
 		try {
-			return Integer.parseInt(stringValue);
+			Integer result = Integer.parseInt(stringValue);
+			return result < 0 ? 0 : result;
 		} catch(NumberFormatException ex) {
 			return fallbackValue;
 		}

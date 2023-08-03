@@ -156,7 +156,6 @@ public class PersonController {
 			return "redirect:/";
 		} catch(IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			
 			return "redirect:/addPerson";
 		}
 	}

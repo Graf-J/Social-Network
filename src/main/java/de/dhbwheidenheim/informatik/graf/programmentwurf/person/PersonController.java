@@ -40,7 +40,7 @@ public class PersonController {
 	 * @param page The page number for pagination. Defaults to 0 if not provided in the request.
 	 * @param pageSize The number of items per page for pagination. Defaults to 10 if not provided in the request.
 	 * @return The name of the view template, in this case, "persons", which will be rendered with the provided data.
-	*/
+	 */
 	@GetMapping("/")
 	public String getPersonsView(
 			Model model, 
@@ -122,7 +122,7 @@ public class PersonController {
 	 * @param model The Spring Model object used to pass data to the view template.
 	 * @param error The error message, if any, from a previous form submission. It will be displayed to the user.
 	 * @return The name of the view template, in this case, "addPersonView", which will be rendered with the provided data.
-	*/
+	 */
 	@GetMapping("/addPerson")
 	public String addPersonView(Model model, @ModelAttribute("error") String error) {
 		Person person = new Person();

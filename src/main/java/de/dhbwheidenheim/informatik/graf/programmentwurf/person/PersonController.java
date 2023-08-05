@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
@@ -70,11 +69,6 @@ public class PersonController {
 		
 		return "personsView";
 	}
-	
-	// @GetMapping("/all")
-	// public @ResponseBody List<Person> getAllUsers() {
-	// 	return personService.getPersons();
-	// }
 	
 	@GetMapping("person/{id}")
 	public String getPersonView(

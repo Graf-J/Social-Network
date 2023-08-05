@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.EmailNotFoundException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.RedirectException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
@@ -144,7 +145,7 @@ public class PostController {
 			
 			// Get Creator and throw Exception if not exists
 			Person creator = personService.getPerson(post.getCreator().getEmail())
-				.orElseThrow(() -> new IdNotFoundException("Person with email " + post.getCreator().getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException(personId, "Person with email " + post.getCreator().getEmail() + " not found"));
 			
 			// Get Parent Post and throw Exception if not exists
 			Post parentPost = postService.getPost(postId)

@@ -66,7 +66,7 @@
             </nav>
         </div>
 
-        <button type="button" class="btn btn-primary btn-block" onclick="window.location.href = '/addPerson'">
+        <button type="button" class="btn btn-warning btn-block" onclick="window.location.href = '/addPerson'">
             Neue Person hinzufügen
         </button>
     </div>

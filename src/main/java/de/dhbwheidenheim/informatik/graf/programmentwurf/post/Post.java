@@ -1,5 +1,6 @@
 package de.dhbwheidenheim.informatik.graf.programmentwurf.post;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -59,6 +60,9 @@ public class Post {
     @Transient
     private List<Post> childPosts;
     
+    @Transient
+    private String timeAgo;
+    
     public Post() { }
     
     public Post(String content, Person creator) {
@@ -110,5 +114,27 @@ public class Post {
 
 	public void setChildPosts(List<Post> childPosts) {
 		this.childPosts = childPosts;
+	}
+	
+	public String getTimeAgo() {
+		LocalDateTime currentTime = LocalDateTime.now();
+        Duration duration = Duration.between(createdAt, currentTime);
+
+        if (duration.getSeconds() < 60) {
+            return "vor " + duration.getSeconds() + " Sekunden";
+        } else if (duration.toMinutes() < 60) {
+            return "vor " + duration.toMinutes() + " Minuten";
+        } else if (duration.toHours() < 24) {
+            return "vor " + duration.toHours() + " Stunden";
+        } else if (duration.toDays() < 30) {
+            return "vor " + duration.toDays() + " Tagen";
+        } else {
+            Long years = duration.toDays() / 365;
+            return "vor " + years + " Jahren";
+        }
+	}
+	
+	public void setTimeAgo(String timeAgo) {
+		this.timeAgo = timeAgo;
 	}
 }

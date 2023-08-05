@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
 
 @Service
@@ -35,7 +38,7 @@ public class PostService {
      * @param creator The creator for whom to fetch posts.
      * @return A list of posts organized in a nested structure.
      */
-	public List<Post> getByCreator(Person creator) {
+	public List<Post> getPostsByCreator(Person creator) {
 		List<Post> flatPosts = postRepository.findAllRecursive(creator.getId());
 		
 		// Return empty List if flatPosts is empty

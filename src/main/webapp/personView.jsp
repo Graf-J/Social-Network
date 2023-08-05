@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -75,7 +74,37 @@
 
         <div class="grid-item-flex green">Add Post</div>
 
-        <div class="grid-item-flex blue" style="grid-row: span 2;">Posts</div>
+        <div class="w-100" style="grid-row: span 2;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding-left: 20px; padding-top: 20px; padding-right: 20px;">
+                <h2>Beiträge</h2>
+                <button class="btn btn-warning" onclick="window.location.href='/person/${ person.id }/post'">
+                    Beitrag hinzufügen
+                </button>
+            </div>
+            <div class="list-group" style="height: calc(100vh - 150px); padding: 3px; border: 3px solid rgb(200, 200, 200); overflow-y: scroll">
+                <c:forEach var="post" items="${ posts }">
+                    <a class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h4 class="mb-1">${ post.content }</h4>
+                            <small>${ post.timeAgo }</small>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <button class="btn btn-warning btn-sm" onclick="window.location.href='/person/${ person.id }/post/${ post.id }'">
+                                Kommentieren
+                            </button>
+                        </div>
+                        <hr>
+                        <c:if test="${ post.childPosts != null }">
+                            <h5 class="ml-3">Kommentare:</h5>
+                            <c:set var="posts" value="${ post.childPosts }" scope="request" />
+                            <c:import url="/templates/commentTemplate.jsp">
+                                <c:param name="personId" value="${ person.id }" />
+                            </c:import>
+                        </c:if>
+                    </a>
+                </c:forEach>
+            </div>
+        </div>
 
         <div class="p-3" style="display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
@@ -89,7 +118,6 @@
                     <th>Vorname</th>
                     <th>Nachname</th>
                     <th>Email</th>
-                    <th>Alter</th>
                     <th>Aktion</th>
                 </tr>
                 <c:forEach var="familyMember" items="${ familyMembers }">
@@ -97,7 +125,6 @@
                         <td>${ familyMember.firstName }</td>
                         <td>${ familyMember.lastName }</td>
                         <td>${ familyMember.email }</td>
-                        <td>${ familyMember.age }</td>
                         <td>
                             <button class="btn btn-primary" onclick="window.location.href = '/person/${ familyMember.id }'">
                                 View
@@ -132,7 +159,6 @@
                     <th>Vorname</th>
                     <th>Nachname</th>
                     <th>Email</th>
-                    <th>Alter</th>
                     <th>Aktion</th>
                 </tr>
                 <c:forEach var="friend" items="${ friends }">
@@ -140,7 +166,6 @@
                         <td>${ friend.firstName }</td>
                         <td>${ friend.lastName }</td>
                         <td>${ friend.email }</td>
-                        <td>${ friend.age }</td>
                         <td>
                             <button class="btn btn-primary" onclick="window.location.href='/person/${ friend.id }'">
                                 View

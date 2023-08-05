@@ -16,15 +16,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.PaginationService;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.post.Post;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.post.PostService;
 
 
 @Controller
 public class PersonController {
 	private final PersonService personService;
+	private final PostService postService;
 	private final PaginationService paginationService;
 	
-	public PersonController(PersonService personService, PaginationService paginationService) {
+	public PersonController(
+		PersonService personService, 
+		PostService postService,
+		PaginationService paginationService
+	) {
 		this.personService = personService;
+		this.postService = postService;
 		this.paginationService = paginationService;
 	}
 	
@@ -43,10 +51,10 @@ public class PersonController {
 	 */
 	@GetMapping("/")
 	public String getPersonsView(
-			Model model, 
-			@RequestParam(defaultValue = "0") String page, 
-			@RequestParam(defaultValue = "7") String pageSize, 
-			@ModelAttribute("error") String error
+		Model model, 
+		@RequestParam(defaultValue = "0") String page, 
+		@RequestParam(defaultValue = "7") String pageSize, 
+		@ModelAttribute("error") String error
 	) {
 		// Extract Pagination Parameters
 		Long personCount = personService.countPersons();
@@ -96,6 +104,8 @@ public class PersonController {
 			List<Person> familyMembers = personService.getFamilyMembers(person, familyPagination);
 			// Query for the Friends Page Ordered By CreatedAt Descending
 			List<Person> friends = personService.getFriends(person, friendPagination);
+			// Query for the Posts of the Person
+			List<Post> posts = postService.getPostsByCreator(person);
 					
 			// Add Attributes to Model
 			model.addAttribute("person", person);
@@ -104,6 +114,7 @@ public class PersonController {
 			model.addAttribute("familyPagination", familyPagination);
 			model.addAttribute("friends", friends);
 			model.addAttribute("friendPagination", friendPagination);
+			model.addAttribute("posts", posts);
 			
 			return "personView";
 		} catch (IdNotFoundException ex) {

@@ -29,6 +29,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			"FROM post p2 " +
 			"INNER JOIN recursive_posts r ON (r.id = p2.parent_post_id)" +
 		")" + 
-		"SELECT * FROM recursive_posts", nativeQuery = true)
+		"SELECT * FROM recursive_posts " + 
+		"ORDER BY created_at DESC", nativeQuery = true)
 	List<Post> findAllRecursive(@Param("creatorId") Long creatorId);
 }

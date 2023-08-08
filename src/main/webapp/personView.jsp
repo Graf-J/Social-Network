@@ -25,18 +25,6 @@
             justify-content: center;
             align-items: center;
         }
-
-        .green {
-            background-color: green;
-        }
-
-        .blue {
-            background-color: blue;
-        }
-
-        .yellow {
-            background-color: yellow;
-        }
     </style>
 </head>
 <body>
@@ -72,7 +60,22 @@
                 </div>
         </div>
 
-        <div class="grid-item-flex green">Add Post</div>
+        <div class="grid-item-flex green">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <h4>Familienmitglieder: <span class="badge bg-info">${ familyMemberCount }</span></h4>
+                </li>
+                <li class="list-group-item">
+                    <h4>Freunde: <span class="badge bg-info">${ friendCount }</span></h4>
+                </li>
+                <li class="list-group-item">
+                    <h4>Beiträge: <span class="badge bg-info">${ postCount }</span></h4>
+                </li>
+                <li class="list-group-item">
+                    <h4>Kommentare: <span class="badge bg-info">${ commentCount }</span></h4>
+                </li>
+            </ul>
+        </div>
 
         <div class="w-100" style="grid-row: span 2;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding-left: 20px; padding-top: 20px; padding-right: 20px;">

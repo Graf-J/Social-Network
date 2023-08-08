@@ -21,6 +21,14 @@ public class PostService {
 		this.postRepository = postRepository;
 	}
 	
+	public Long countPosts(Person creator) {
+		return postRepository.countPosts(creator);
+	}
+	
+	public Long countComments(Person creator) {
+		return postRepository.countComments(creator);
+	}
+	
 	/**
      * Get a post by its ID.
      * @param id The ID of the post to retrieve.

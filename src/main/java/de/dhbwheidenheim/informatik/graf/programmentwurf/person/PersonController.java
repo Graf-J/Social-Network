@@ -94,6 +94,11 @@ public class PersonController {
 			Long friendCount = personService.countFriends(person);
 			Pagination friendPagination = paginationService.getPagination(friendPage, friendPageSize, 4, friendCount);
 			
+			// Get amount of Posts
+			Long postCount = postService.countPosts(person);
+			// Get amount of Comments
+			Long commentCount = postService.countComments(person);
+			
 			// Get the husband / wife of the Person
 			Optional<Person> spouse = personService.getSpouse(person);
 			// Query for the Family Members Page Ordered By CreatedAt Descending
@@ -107,10 +112,14 @@ public class PersonController {
 			model.addAttribute("person", person);
 			model.addAttribute("spouse", spouse);
 			model.addAttribute("familyMembers", familyMembers);
+			model.addAttribute("familyMemberCount", familyMemberCount);
 			model.addAttribute("familyPagination", familyPagination);
 			model.addAttribute("friends", friends);
+			model.addAttribute("friendCount", friendCount);
 			model.addAttribute("friendPagination", friendPagination);
 			model.addAttribute("posts", posts);
+			model.addAttribute("postCount", postCount);
+			model.addAttribute("commentCount", commentCount);
 			model.addAttribute("error", error);
 			
 			return "personView";

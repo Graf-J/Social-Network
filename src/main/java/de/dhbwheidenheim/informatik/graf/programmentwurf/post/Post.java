@@ -120,18 +120,30 @@ public class Post {
 		LocalDateTime currentTime = LocalDateTime.now();
         Duration duration = Duration.between(createdAt, currentTime);
 
+        Long numValue;
+        String timeAgoLabel;
         if (duration.getSeconds() < 60) {
-            return "vor " + duration.getSeconds() + " Sekunden";
+        	numValue = duration.getSeconds();
+            timeAgoLabel = "vor " + numValue + " Sekunde";
         } else if (duration.toMinutes() < 60) {
-            return "vor " + duration.toMinutes() + " Minuten";
+        	numValue = duration.toMinutes();
+        	timeAgoLabel = "vor " + numValue + " Minute";
         } else if (duration.toHours() < 24) {
-            return "vor " + duration.toHours() + " Stunden";
+        	numValue = duration.toHours();
+            timeAgoLabel = "vor " + numValue + " Stunde";
         } else if (duration.toDays() < 30) {
-            return "vor " + duration.toDays() + " Tagen";
+        	numValue = duration.toDays();
+            timeAgoLabel = "vor " + numValue + " Tage";
         } else {
-            Long years = duration.toDays() / 365;
-            return "vor " + years + " Jahren";
+            numValue = duration.toDays() / 365;
+            timeAgoLabel = "vor " + numValue + " Jahre";
         }
+        
+        // Distinguish between Plural and Singular
+        if (numValue != 1) {
+        	return timeAgoLabel + "n";
+        }
+        return timeAgoLabel;
 	}
 	
 	public void setTimeAgo(String timeAgo) {

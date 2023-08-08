@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
+
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 	/**
@@ -32,4 +34,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		"SELECT * FROM recursive_posts " + 
 		"ORDER BY created_at DESC", nativeQuery = true)
 	List<Post> findAllRecursive(@Param("creatorId") Long creatorId);
+	
+	@Query("SELECT COUNT(p) FROM Post p " + 
+		   "WHERE p.creator = ?1 AND p.parentPost IS NULL")
+	Long countPosts(Person creator);
+	
+	@Query("SELECT COUNT(p) FROM Post p " + 
+		   "WHERE p.creator = ?1 AND p.parentPost IS NOT NULL")
+	Long countComments(Person creator);
 }

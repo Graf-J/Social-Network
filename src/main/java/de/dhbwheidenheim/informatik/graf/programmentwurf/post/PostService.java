@@ -5,11 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
 
 @Service

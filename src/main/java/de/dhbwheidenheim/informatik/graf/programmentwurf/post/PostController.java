@@ -5,14 +5,15 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.EmailNotFoundException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.InvalidFormInputException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.RedirectException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.PaginationService;
@@ -35,18 +36,11 @@ public class PostController {
 		this.paginationService = paginationService;
 	}
 	
-	@GetMapping("posts/{id}")
-	public @ResponseBody List<Post> getPosts(@PathVariable Long id) {
-		Person creator = personService.getPerson(id)
-			.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
-		
-		return postService.getPostsByCreator(creator);
-	}
-	
 	@GetMapping("/person/{personId}/post")
 	public String addPostView(
 		Model model, 
 		RedirectAttributes redirectAttributes,
+		@ModelAttribute("error") String error,
 		@PathVariable Long personId
 	) {
 		try {
@@ -54,16 +48,17 @@ public class PostController {
 			
 			// Check if Person Exists
 			personService.getPerson(personId)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + personId + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + personId + " not found"));
 			
 			// Add Attributes to Model
 			model.addAttribute("post", post);
 			model.addAttribute("personId", personId);
+			model.addAttribute("error", error);
 			
 			return "addPostView";
-		} catch (IdNotFoundException ex) {
+		} catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/"; 
+			return "redirect:" + ex.getRedirectPath(); 
 		}
 	}
 	
@@ -73,6 +68,7 @@ public class PostController {
 		RedirectAttributes redirectAttributes,
 		@RequestParam(defaultValue = "0") String page, 
 		@RequestParam(defaultValue = "7") String pageSize, 
+		@ModelAttribute("error") String error,
 		@PathVariable Long personId,
 		@PathVariable Long postId
 	) {
@@ -81,7 +77,7 @@ public class PostController {
 			
 			// Check if Person Exists
 			Person person = personService.getPerson(personId)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + personId + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + personId + " not found"));
 			
 			// Extract Pagination Parameters
 			Long personsCount = personService.countPersons();
@@ -91,7 +87,7 @@ public class PostController {
 			
 			// Check if Post Exists
 			Post parentPost = postService.getPost(postId)
-				.orElseThrow(() -> new RedirectException(personId, "Post with Id " + postId + " not found"));
+				.orElseThrow(() -> new RedirectException("/person/" + personId, "Post with Id " + postId + " not found"));
 			
 			// Add Attributes to Model
 			model.addAttribute("post", post);
@@ -99,14 +95,12 @@ public class PostController {
 			model.addAttribute("person", person);
 			model.addAttribute("persons", persons);
 			model.addAttribute("pagination", pagination);
+			model.addAttribute("error", error);
 			
 			return "addCommentView";
-		} catch (IdNotFoundException ex) {
+		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
-		} catch (RedirectException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/person/" + ex.getRedirectId();
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 	
@@ -117,17 +111,22 @@ public class PostController {
 		@PathVariable Long personId
 	) {
 		try {
+			// Check Form-Input Data
+			if (post.getContent() == null || post.getContent().isEmpty()) {
+				throw new InvalidFormInputException("/person/" + personId + "/post", "Content has to be specified");
+			}
+			
 			// Get Creator and throw Exception if not exists
 			Person creator = personService.getPerson(personId)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + personId + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + personId + " not found"));
 			
 			// Add Post
 			postService.addPost(new Post(post.getContent(), creator));
 			
 			return "redirect:/person/" + personId;
-		} catch (IdNotFoundException ex) {
+		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 	
@@ -139,28 +138,36 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		try {
+			// Check Form-Input Data
+			if (post.getCreator() == null) {
+				throw new InvalidFormInputException("/person/" + personId + "/post/" + postId, "Creator with Email has to be specified");
+			}
+			if (post.getCreator().getEmail() == null || post.getCreator().getEmail().isEmpty()) {
+				throw new InvalidFormInputException("/person/" + personId + "/post/" + postId, "Creator with Email has to be specified");
+			}
+			if (post.getContent() == null || post.getContent().isEmpty()) {
+				throw new InvalidFormInputException("/person/" + personId + "/post/" + postId, "Content has to be specified");
+			}
+			
 			// Check if personId exists
 			personService.getPerson(personId)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + personId + " not found"));
-			
-			// Get Creator and throw Exception if not exists
-			Person creator = personService.getPerson(post.getCreator().getEmail())
-				.orElseThrow(() -> new EmailNotFoundException(personId, "Person with email " + post.getCreator().getEmail() + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + personId + " not found"));
 			
 			// Get Parent Post and throw Exception if not exists
 			Post parentPost = postService.getPost(postId)
-				.orElseThrow(() -> new RedirectException(personId, "Post with Id " + postId + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/person/" + personId, "Post with Id " + postId + " not found"));
+			
+			// Get Creator and throw Exception if not exists
+			Person creator = personService.getPerson(post.getCreator().getEmail())
+				.orElseThrow(() -> new EmailNotFoundException("/person/" + personId + "/post/" + postId, "Person with email " + post.getCreator().getEmail() + " not found"));
 			
 			// Add Post
 			postService.addPost(new Post(post.getContent(), creator, parentPost));
 			
 			return "redirect:/person/" + personId;
-		} catch (IdNotFoundException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
 		} catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/person/" + ex.getRedirectId();
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 }

@@ -23,7 +23,7 @@ public class RelationService {
 	public void addMarriageRelation(Person creator, Person receiver) {
 		// Check that the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
-			throw new InvalidRelationException(creator.getId(), "You can't marry yourself");
+			throw new InvalidRelationException("/addMarriage/" + creator.getId(), "You can't marry yourself");
 		}
 		
 		// Check if there exists a relation where one of these is already married
@@ -38,7 +38,7 @@ public class RelationService {
 				errorMessage = receiver.getFirstName() + " " + receiver.getLastName() + " is already married";
 			}
 			
-			throw new InvalidRelationException(creator.getId(), errorMessage);
+			throw new InvalidRelationException("/addMarriage/" + creator.getId(), errorMessage);
 		}
 		
 		// Save Marry and Family Relation to Database
@@ -55,13 +55,13 @@ public class RelationService {
 	public void addFamilyRelation(Person creator, Person receiver) {
 		// Check if the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
-			throw new InvalidRelationException(creator.getId(), "You can't be in a family relation with yourself");
+			throw new InvalidRelationException("/addFamilyMember/" + creator.getId(), "You can't be in a family relation with yourself");
 		}
 		
 		// Check if Family Relation already exists
 		Optional<Relation> familyRelation = relationRepository.findFamily(creator, receiver);
 		if (familyRelation.isPresent()) {
-			throw new InvalidRelationException(creator.getId(), "Family relation between " + creator.getFirstName() + " and " + receiver.getFirstName() + " already exists");
+			throw new InvalidRelationException("/addFamilyMember/" + creator.getId(), "Family relation between " + creator.getFirstName() + " and " + receiver.getFirstName() + " already exists");
 		}
 
 		List<Relation> relations = new ArrayList<>();
@@ -90,13 +90,13 @@ public class RelationService {
 	public void addFriendRelation(Person creator, Person receiver) {
 		// Check if the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
-			throw new InvalidRelationException(creator.getId(), "You can't be in a friend relation with yourself");
+			throw new InvalidRelationException("/addFriend/" + creator.getId(), "You can't be in a friend relation with yourself");
 		}
 		
 		// Check if Friend Relation already exists
 		Optional<Relation> friendRelation = relationRepository.findFriend(creator, receiver);
 		if (friendRelation.isPresent()) {
-			throw new InvalidRelationException(creator.getId(), "Friend relation between " + creator.getFirstName() + " and " + receiver.getFirstName() + " already exists");
+			throw new InvalidRelationException("/addFriend/" + creator.getId(), "Friend relation between " + creator.getFirstName() + " and " + receiver.getFirstName() + " already exists");
 		}
 		
 		Relation relation = new Relation(creator, receiver, RelationType.friend);

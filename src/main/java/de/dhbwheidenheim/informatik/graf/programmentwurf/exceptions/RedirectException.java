@@ -2,14 +2,14 @@ package de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions;
 
 @SuppressWarnings("serial")
 public class RedirectException extends RuntimeException {
-	private final Long redirectId;
+	private final String redirectPath;
 	
-	public RedirectException(Long redirectId, String message) {
+	public RedirectException(String redirectPath, String message) {
         super(message);
-        this.redirectId = redirectId;
+        this.redirectPath = redirectPath;
     }
 	
-	public Long getRedirectId() {
-		return this.redirectId;
+	public String getRedirectPath() {
+		return this.redirectPath;
 	}
 }

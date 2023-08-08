@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.InvalidFormInputException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.Relation;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationRepository;
@@ -116,18 +117,32 @@ public class PersonService {
 	}
 	
 	public void addPerson(Person person) {
+		// Check Form-Input Data
+		if (person.getFirstName() == null || person.getFirstName().isEmpty()) {
+			throw new InvalidFormInputException("/addPerson", "FirstName has to be specified");
+		}
+		if (person.getLastName() == null || person.getLastName().isEmpty()) {
+			throw new InvalidFormInputException("/addPerson", "LastName has to be specified");
+		}
+		if (person.getEmail() == null || person.getEmail().isEmpty()) {
+			throw new InvalidFormInputException("/addPerson", "Email has to be specified");
+		}
+		if (person.getBirthday() == null) {
+			throw new InvalidFormInputException("/addPerson", "Birthday has to be specified");
+		}
+		
 		// Check if E-Mail is valid
 		String regexPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 		if (!Pattern.compile(regexPattern).matcher(person.getEmail()).matches()) {
-			throw new IllegalArgumentException("Email isn't valid");
+			throw new InvalidFormInputException("/addPerson", "Email isn't valid");
 		}
 		// Check if E-Mail alreay exists
 		if (personRepository.findByEmail(person.getEmail()).isPresent()) {
-			throw new IllegalArgumentException("Email already taken");
+			throw new InvalidFormInputException("/addPerson", "Email already taken");
 		}
 		// Check if Birthday is valid
 		if (person.getBirthday().isAfter(LocalDate.now())) {
-			throw new IllegalArgumentException("Birthday can't be in the future");
+			throw new InvalidFormInputException("/addPerson", "Birthday can't be in the future");
 		}
 		
 		personRepository.save(person);

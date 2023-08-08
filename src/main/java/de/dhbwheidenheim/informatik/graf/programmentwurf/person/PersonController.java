@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.RedirectException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.PaginationService;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.post.Post;
@@ -76,14 +77,15 @@ public class PersonController {
 		@RequestParam(defaultValue = "0") String familyPage, 
 		@RequestParam(defaultValue = "4") String familyPageSize, 
 		@RequestParam(defaultValue = "0") String friendPage, 
-		@RequestParam(defaultValue = "4") String friendPageSize, 
+		@RequestParam(defaultValue = "4") String friendPageSize,
+		@ModelAttribute("error") String error,
 		RedirectAttributes redirectAttributes,
 		@PathVariable Long id
 	) {
 		try {
 			// Get Person by ID and throw Exception if not exists
 			Person person = personService.getPerson(id)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
 			
 			// Extract  Family Pagination Parameters
 			Long familyMemberCount = personService.countFamilyMembers(person);
@@ -109,11 +111,12 @@ public class PersonController {
 			model.addAttribute("friends", friends);
 			model.addAttribute("friendPagination", friendPagination);
 			model.addAttribute("posts", posts);
+			model.addAttribute("error", error);
 			
 			return "personView";
-		} catch (IdNotFoundException ex) {
+		} catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 	
@@ -159,9 +162,9 @@ public class PersonController {
 			personService.addPerson(person);
 			
 			return "redirect:/";
-		} catch(IllegalArgumentException ex) {
+		} catch(RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/addPerson";
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 }

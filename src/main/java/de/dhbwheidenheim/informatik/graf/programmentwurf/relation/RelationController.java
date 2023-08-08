@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.EmailNotFoundException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.InvalidFormInputException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.RedirectException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.PaginationService;
@@ -50,7 +51,7 @@ public class RelationController {
 			
 			// Get Person by ID and throw Exception if not exists
 			Person queryPerson = personService.getPerson(id)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
 			
 			// Get the Pagination Information
 			Long singlesCount = personService.countSinglesExcept(queryPerson);
@@ -67,9 +68,9 @@ public class RelationController {
 			model.addAttribute("error", error);
 			
 			return "addMarriageView";
-		} catch (IdNotFoundException ex) {
+		} catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 	
@@ -81,20 +82,21 @@ public class RelationController {
 	) {
 		try {
 			Person creatorPerson = personService.getPerson(id)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
+			
+			if (person.getEmail() == null || person.getEmail().isEmpty()) {
+				throw new InvalidFormInputException("/addMarriage/" + id, "Email has to be specified");
+			}
 			
 			Person receiverPerson = personService.getPerson(person.getEmail())
-				.orElseThrow(() -> new EmailNotFoundException(id, "Person with email " + person.getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException("/addMarriage/" + id, "Person with email " + person.getEmail() + " not found"));
 	
 	        relationService.addMarriageRelation(creatorPerson, receiverPerson);
 			
 			return "redirect:/person/" + id;
-		} catch (IdNotFoundException ex) {
+		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
-		} catch (RedirectException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/addMarriage/" + ex.getRedirectId(); 
+			return "redirect:" + ex.getRedirectPath(); 
 		}
 	}
 	
@@ -112,7 +114,7 @@ public class RelationController {
 			
 			// Get Person by ID and throw Exception if not exists
 			Person queryPerson = personService.getPerson(id)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
 			
 			// Get the Pagination Information
 			Long familyMembersCount = personService.countNonFamilyMembers(queryPerson);
@@ -129,9 +131,9 @@ public class RelationController {
 			model.addAttribute("error", error);
 			
 			return "addFamilyMemberView";
-		} catch (IdNotFoundException ex) {
+		} catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 	
@@ -143,20 +145,21 @@ public class RelationController {
 	) {
 		try {
 			Person creatorPerson = personService.getPerson(id)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
+			
+			if (person.getEmail() == null || person.getEmail().isEmpty()) {
+				throw new InvalidFormInputException("/addFamilyMember/" + id, "Email has to be specified");
+			}
 			
 			Person receiverPerson = personService.getPerson(person.getEmail())
-				.orElseThrow(() -> new EmailNotFoundException(id, "Person with email " + person.getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException("/addFamilyMember/" + id, "Person with email " + person.getEmail() + " not found"));
 	
 	        relationService.addFamilyRelation(creatorPerson, receiverPerson);
 			
 			return "redirect:/person/" + id;
-		} catch (IdNotFoundException ex) {
+		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
-		} catch (RedirectException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/addFamilyMember/" + ex.getRedirectId(); 
+			return "redirect:" + ex.getRedirectPath(); 
 		}
 	}
 	
@@ -174,7 +177,7 @@ public class RelationController {
 			
 			// Get Person by ID and throw Exception if not exists
 			Person queryPerson = personService.getPerson(id)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
 						
 			// Get the Pagination Information
 			Long friendsCount = personService.countNonFriends(queryPerson);
@@ -191,9 +194,9 @@ public class RelationController {
 			model.addAttribute("error", error);
 			
 			return "addFriendView";
-		} catch (IdNotFoundException ex) {
+		} catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
+			return "redirect:" + ex.getRedirectPath();
 		}
 	}
 	
@@ -205,20 +208,21 @@ public class RelationController {
 	) {
 		try {
 			Person creatorPerson = personService.getPerson(id)
-				.orElseThrow(() -> new IdNotFoundException("Person with Id " + id + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
+			
+			if (person.getEmail() == null || person.getEmail().isEmpty()) {
+				throw new InvalidFormInputException("/addFriend/" + id, "Email has to be specified");
+			}
 			
 			Person receiverPerson = personService.getPerson(person.getEmail())
-				.orElseThrow(() -> new EmailNotFoundException(id, "Person with email " + person.getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException("/addFriend/" + id, "Person with email " + person.getEmail() + " not found"));
 	
 	        relationService.addFriendRelation(creatorPerson, receiverPerson);
 			
 			return "redirect:/person/" + id;
-		} catch (IdNotFoundException ex) {
+		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/";
-		} catch (RedirectException ex) {
-			redirectAttributes.addFlashAttribute("error", ex.getMessage());
-			return "redirect:/addFriend/" + ex.getRedirectId(); 
+			return "redirect:" + ex.getRedirectPath(); 
 		}
 	}
 }

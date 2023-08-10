@@ -21,10 +21,22 @@ public class PostService {
 		this.postRepository = postRepository;
 	}
 	
+	/**
+	 * Counts the number of posts created by a specific creator.
+	 *
+	 * @param creator The creator whose posts are to be counted.
+	 * @return The number of posts created by the creator.
+	 */
 	public Long countPosts(Person creator) {
 		return postRepository.countPosts(creator);
 	}
 	
+	/**
+	 * Counts the number of comments created by a specific creator.
+	 *
+	 * @param creator The creator whose comments are to be counted.
+	 * @return The number of comments created by the creator.
+	 */
 	public Long countComments(Person creator) {
 		return postRepository.countComments(creator);
 	}
@@ -119,5 +131,36 @@ public class PostService {
      */
 	public void addPost(Post post) {
 		postRepository.save(post);
+	}
+	
+	/**
+	 * Deletes all posts and their associated comments recursively.
+	 * This method initiates the deletion process by calling the recursive
+	 * deletion method for each top-level post.
+	 */
+	public void deletePosts() {
+		List<Post> posts = postRepository.getPosts();
+		
+		for (Post post : posts) {
+			deletePostsRecursively(post);
+		}
+	}
+	
+	/**
+	 * Recursively deletes a post and its associated comments.
+	 * This method first deletes all comments of the current post recursively,
+	 * and then deletes the post itself. This is necessary due to the constrains
+	 * between the different posts.
+	 *
+	 * @param post The post to be deleted.
+	 */
+	private void deletePostsRecursively(Post post) {
+		List<Post> comments = postRepository.getComments(post);
+		
+		for (Post comment : comments) {
+			deletePostsRecursively(comment);
+		}
+		
+		postRepository.delete(post);
 	}
 }

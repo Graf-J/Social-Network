@@ -42,4 +42,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Query("SELECT COUNT(p) FROM Post p " + 
 		   "WHERE p.creator = ?1 AND p.parentPost IS NOT NULL")
 	Long countComments(Person creator);
+	
+	@Query("SELECT p FROM Post p " + 
+		   "WHERE p.parentPost IS NULL")
+	List<Post> getPosts();
+	
+	@Query("SELECT p FROM Post p " + 
+		   "WHERE p.parentPost = ?1")
+	List<Post> getComments(Post post);
 }

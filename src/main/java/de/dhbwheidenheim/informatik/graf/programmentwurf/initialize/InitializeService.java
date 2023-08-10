@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.Relation;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.PersonRepository;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.post.PostRepository;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.post.Post;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationRepository;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationService;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationType;
@@ -19,15 +21,18 @@ public class InitializeService {
 	private final PersonRepository personRepository;
 	private final RelationService relationService;
 	private final RelationRepository relationRepository;
+	private final PostRepository postRepository;
 	
 	public InitializeService(
 		PersonRepository personRepository, 
 		RelationService relationService,
-		RelationRepository relationRepository
+		RelationRepository relationRepository,
+		PostRepository postRepository
 	) {
 		this.personRepository = personRepository;
 		this.relationService = relationService;
 		this.relationRepository = relationRepository;
+		this.postRepository = postRepository;
 	}
 	
 	public List<Person> createPersons() {
@@ -61,6 +66,34 @@ public class InitializeService {
 		createMarriages(persons);
 		createFamilyMembers(persons);
 		createFriends(persons);
+	}
+	
+	public void createPosts(List<Person> persons) {
+		List<Post> posts = new ArrayList<>();
+		
+		// Programmin Language Discussion
+		posts.add(new Post("Was ist euere Lieblingsprogrammiersprache?", persons.get(0)));
+		posts.add(new Post("Ich programmiere am liebsten Webseiten, also JavaScript", persons.get(7), posts.get(0)));
+		posts.add(new Post("Versuch mal Typescript! Damit hast du mehr Typsicherheit.", persons.get(0), posts.get(1)));
+		posts.add(new Post("Danke! Ich werde es im nächsten Projekt ausprobieren.", persons.get(7), posts.get(2)));
+		posts.add(new Post("Mein Lieblingssprache ist C#", persons.get(13), posts.get(0)));
+		posts.add(new Post("Ich programmiere am liebsten in HTML!", persons.get(10), posts.get(0)));
+		posts.add(new Post("HTML is doch keine Programmiersprache!!!", persons.get(12), posts.get(5)));
+		posts.add(new Post("Das sind Markup-Sprache und keine Programmiersprache... ", persons.get(13), posts.get(5)));
+		posts.add(new Post("Mein Lieblingsprogrammiersprache ist Python", persons.get(14), posts.get(0)));
+		posts.add(new Post("Cool! Bist du im Data-Science und Machine-Leraning Bereich tätig?", persons.get(0), posts.get(8)));
+		posts.add(new Post("Naja, ich versuche es mir gerade beizubringen =)", persons.get(14), posts.get(9)));
+		posts.add(new Post("Das ist auch meine Lieblingssprache. So einfach und doch so mächtig!", persons.get(15), posts.get(8)));
+		// Hello in different languages
+		posts.add(new Post("Hallo", persons.get(0)));
+		posts.add(new Post("Hello", persons.get(1), posts.get(12)));
+		posts.add(new Post("Hola", persons.get(2), posts.get(12)));
+		posts.add(new Post("Bonjour", persons.get(3), posts.get(12)));
+		posts.add(new Post("Tere", persons.get(4), posts.get(12)));
+		posts.add(new Post("Zdravo", persons.get(5), posts.get(12)));
+		
+		
+		postRepository.saveAll(posts);
 	}
 	
 	private void createMarriages(List<Person> persons) {

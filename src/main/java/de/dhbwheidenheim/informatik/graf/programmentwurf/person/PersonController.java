@@ -20,12 +20,24 @@ import de.dhbwheidenheim.informatik.graf.programmentwurf.post.Post;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.post.PostService;
 
 
+/**
+ * Controller class handling operations related to persons.
+ */
 @Controller
 public class PersonController {
 	private final PersonService personService;
 	private final PostService postService;
 	private final PaginationService paginationService;
 	
+	/**
+	 * Constructor for the PersonController class.
+	 *
+	 * Initializes the PersonController with required services for handling person and post data.
+	 *
+	 * @param personService The PersonService instance responsible for handling person-related operations.
+	 * @param postService The PostService instance responsible for handling post-related operations.
+	 * @param paginationService The PaginationService instance for managing pagination parameters.
+	 */
 	public PersonController(
 		PersonService personService, 
 		PostService postService,
@@ -35,19 +47,20 @@ public class PersonController {
 		this.postService = postService;
 		this.paginationService = paginationService;
 	}
-	
+
 	/**
-	 * Retrieves a paginated view of persons and renders it to the "persons" template.
+	 * Retrieves a paginated view of persons and renders it to the "personsView" template.
 	 *
-	 * This method is mapped to the HTTP GET request for the root URL ("/") using the @GetMapping annotation.
-	 * It fetches a paginated list of persons from the data source based on the provided page and pageSize parameters.
-	 * If the parameters are not provided in the request, default values of "0" for page and "10" for pageSize are used.
-	 * The persons get returned in a descending order to display the most recent persons first.
+	 * Mapped to the HTTP GET request for the root URL ("/") using the @GetMapping annotation.
+	 * Fetches a paginated list of persons based on provided page and pageSize parameters.
+	 * Default values are used if parameters are missing.
+	 * Renders the most recent persons first.
 	 *
-	 * @param model The Spring Model object used to pass data to the view template.
-	 * @param page The page number for pagination. Defaults to 0 if not provided in the request.
-	 * @param pageSize The number of items per page for pagination. Defaults to 10 if not provided in the request.
-	 * @return The name of the view template, in this case, "persons", which will be rendered with the provided data.
+	 * @param model Spring Model object for passing data to the view.
+	 * @param page Page number for pagination. Defaults to 0 if not provided.
+	 * @param pageSize Number of items per page. Defaults to 7 if not provided.
+	 * @param error Error message retrieved from flash attributes.
+	 * @return Name of the view template, "personsView", rendered with provided data.
 	 */
 	@GetMapping("/")
 	public String getPersonsView(
@@ -71,6 +84,32 @@ public class PersonController {
 		return "personsView";
 	}
 	
+	/**
+	 * Retrieves the view for displaying detailed information about a specific person.
+	 * 
+	 * This method is mapped to the HTTP GET request for "/person/{id}" using the @GetMapping annotation.
+	 * It fetches the details of the person with the specified ID from the data source.
+	 * If the person with the given ID does not exist, an IdNotFoundException is thrown.
+	 * 
+	 * The method also handles the pagination of family members and friends of the person.
+	 * It calculates the pagination parameters for family members and friends lists.
+	 * 
+	 * The method retrieves the spouse, family members, friends, posts, and comment counts for the person.
+	 * These details are added to the Model to be rendered in the view.
+	 * 
+	 * If any errors occur during the process, such as a RedirectException, an error message is set
+	 * in the RedirectAttributes and the user is redirected to the appropriate page.
+	 * 
+	 * @param model The Spring Model object used to pass data to the view template.
+	 * @param familyPage The page number for family members' pagination. Defaults to 0 if not provided in the request.
+	 * @param familyPageSize The number of family members per page for pagination. Defaults to 4 if not provided in the request.
+	 * @param friendPage The page number for friends' pagination. Defaults to 0 if not provided in the request.
+	 * @param friendPageSize The number of friends per page for pagination. Defaults to 4 if not provided in the request.
+	 * @param error The error message from a previous operation, if applicable.
+	 * @param redirectAttributes The RedirectAttributes used to add error messages for redirection.
+	 * @param id The ID of the person whose details are to be displayed.
+	 * @return The name of the view template, "personView", which will be rendered with the provided data.
+	 */
 	@GetMapping("person/{id}")
 	public String getPersonView(
 		Model model,
@@ -130,15 +169,16 @@ public class PersonController {
 	}
 	
 	/**
-	 * Renders the "addPersonView" template to display the form for adding a new person.
-	 *
-	 * This method is mapped to the HTTP GET request for the "/addPerson" URL using the @GetMapping annotation.
-	 * It prepares the view by creating a new Person object and adding it, along with the "error" attribute, to the Spring Model.
-	 * The "error" attribute is used to display any error messages related to the previous form submission.
-	 *
+	 * Retrieves the view for adding a new person.
+	 * 
+	 * This method is mapped to the HTTP GET request for "/addPerson" using the @GetMapping annotation.
+	 * It prepares a new Person object and adds it to the Model, along with any error message from a previous operation.
+	 * 
+	 * The provided data is used to render the "addPersonView" template, allowing users to input details for a new person.
+	 * 
 	 * @param model The Spring Model object used to pass data to the view template.
-	 * @param error The error message, if any, from a previous form submission. It will be displayed to the user.
-	 * @return The name of the view template, in this case, "addPersonView", which will be rendered with the provided data.
+	 * @param error The error message from a previous operation, if applicable.
+	 * @return The name of the view template, "addPersonView", which will be rendered with the provided data.
 	 */
 	@GetMapping("/addPerson")
 	public String addPersonView(Model model, @ModelAttribute("error") String error) {
@@ -152,18 +192,18 @@ public class PersonController {
 	}
 	
 	/**
-	 * Handles the HTTP POST request for adding a new person to the system.
-	 *
-	 * This method is mapped to the "/addPerson" URL using the @PostMapping annotation.
-	 * It receives the form data as a bound object of type "Person" and attempts to add the new person to the system
-	 * using the personService. If the addition is successful, the method redirects the user to the root URL ("/").
-	 * If an exception occurs during the addition process, the error message from the exception is stored in flash
-	 * attributes and the user is redirected back to the "addPerson" form view to display the error message.
-	 *
-	 * @param person The Person object representing the form data submitted by the user.
-	 * @param redirectAttributes The RedirectAttributes object used to store flash attributes for the redirected view.
-	 * @return A redirection string to the target view based on the outcome of the addition process.
-	 *         If successful, it redirects to the root URL ("/"). If an error occurs, it redirects to the "addPerson" view.
+	 * Adds a new person to the system.
+	 * 
+	 * This method is mapped to the HTTP POST request for "/addPerson" using the @PostMapping annotation.
+	 * It receives a Person object from the form submission, adds it to the system using the personService,
+	 * and then redirects the user to the main view ("/").
+	 * 
+	 * If any errors occur during the addition of the person, a RedirectException is caught. In this case, the error message
+	 * is added as a flash attribute and the user is redirected back to the "addPerson" view to display the error.
+	 * 
+	 * @param person The Person object containing the data from the form submission.
+	 * @param redirectAttributes The RedirectAttributes object to add flash attributes for redirection.
+	 * @return A redirection URL based on the outcome of the addition operation.
 	 */
 	@PostMapping("/addPerson")
 	public String addPerson(Person person, RedirectAttributes redirectAttributes) {

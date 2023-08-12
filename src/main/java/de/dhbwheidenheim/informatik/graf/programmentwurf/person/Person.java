@@ -17,6 +17,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * Represents a person entity with basic personal information.
+ * This class is annotated with JPA annotations to map it to the corresponding database table.
+ */
 @Entity
 @Table(name = "person")
 public class Person {

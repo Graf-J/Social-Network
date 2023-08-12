@@ -10,6 +10,9 @@ import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.InvalidRelat
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.PersonRepository;
 
+/**
+ * Service class responsible for handling operations related to relations.
+ */
 @Service
 public class RelationService {
 	private final RelationRepository relationRepository;
@@ -20,6 +23,22 @@ public class RelationService {
 		this.personRepository = personRepository;
 	}
 	
+	/**
+	 * Adds a marriage relation between two persons.
+	 * 
+	 * This method handles the addition of a marriage relation between the specified creator and receiver persons.
+	 * It performs validation checks to ensure that the two persons are not the same, and that they are not already married to someone else.
+	 * If the relation already exists, an exception is thrown with an appropriate error message.
+	 * 
+	 * The method first checks if there's a marriage relation where either the creator or receiver is already married.
+	 * If such a relation exists, it generates an error message accordingly.
+	 * 
+	 * The marriage relation is saved to the database, and if no family relation exists between the two persons, a family relation is also added.
+	 * 
+	 * @param creator The person who initiated the marriage relation.
+	 * @param receiver The person who is being married.
+	 * @throws InvalidRelationException If the relation is not valid, such as marrying oneself or marrying someone who is already married.
+	 */
 	public void addMarriageRelation(Person creator, Person receiver) {
 		// Check that the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
@@ -52,6 +71,20 @@ public class RelationService {
 		}
 	}
 	
+	/**
+	 * Adds a family relation between two persons.
+	 * 
+	 * This method handles the addition of a family relation between the specified creator and receiver persons.
+	 * It performs validation checks to ensure that the two persons are not the same and that a family relation between them does not already exist.
+	 * If the relation already exists, an exception is thrown with an appropriate error message.
+	 * 
+	 * The method creates relations between the two persons, as well as relations between their respective family members.
+	 * The family members of each person are connected to the other person through family relations.
+	 * 
+	 * @param creator The person who is establishing the family relation.
+	 * @param receiver The person who is being related as a family member.
+	 * @throws InvalidRelationException If the relation is not valid, such as creating a family relation with oneself or if the relation already exists.
+	 */
 	public void addFamilyRelation(Person creator, Person receiver) {
 		// Check if the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
@@ -87,6 +120,19 @@ public class RelationService {
 		relationRepository.saveAll(relations);
 	}
 	
+	/**
+	 * Adds a friend relation between two persons.
+	 * 
+	 * This method handles the addition of a friend relation between the specified creator and receiver persons.
+	 * It performs validation checks to ensure that the two persons are not the same and that a friend relation between them does not already exist.
+	 * If the relation already exists, an exception is thrown with an appropriate error message.
+	 * 
+	 * The method creates a friend relation between the two persons in the relation repository.
+	 * 
+	 * @param creator The person initiating the friend relation.
+	 * @param receiver The person being related as a friend.
+	 * @throws InvalidRelationException If the relation is not valid, such as creating a friend relation with oneself or if the relation already exists.
+	 */
 	public void addFriendRelation(Person creator, Person receiver) {
 		// Check if the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
@@ -103,6 +149,9 @@ public class RelationService {
 		relationRepository.save(relation);
 	}
 	
+	/**
+	 * Deletes all relation records.
+	 */
 	public void deleteRelations() {
 		relationRepository.deleteAll();
 	}

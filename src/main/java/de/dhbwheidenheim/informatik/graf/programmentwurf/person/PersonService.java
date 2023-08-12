@@ -69,6 +69,7 @@ public class PersonService {
      * @return A list of persons for the given page.
      */
 	public List<Person> getPersons(Pagination pagination) {
+		// Create PageRequest including Sorting
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
 		
@@ -95,10 +96,11 @@ public class PersonService {
 	public Optional<Person> getSpouse(Person person) {
 		Optional<Relation> relation = relationRepository.findMarriage(person);
 		
+		// Check if Person is married
 		if (relation.isEmpty()) {
 			return Optional.empty();
 		}
-		
+		// Return the Person of the marriage which is not the person which gets passed as a parameter
 		if (relation.get().getCreator().getId() == person.getId()) {
 			return Optional.of(relation.get().getReceiver());
 		} else {
@@ -124,6 +126,7 @@ public class PersonService {
 	 * @return A paginated list of single persons excluding the specified person.
 	 */
 	public List<Person> getSinglesExcept(Person person, Pagination pagination) {
+		// Create PageRequest including Sorting
 		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
 		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
 		
@@ -148,6 +151,7 @@ public class PersonService {
 	 * @return A paginated list of family members associated with the given person.
 	 */
 	public List<Person> getFamilyMembers(Person person, Pagination pagination) {
+		// Create PageRequest including Sorting
 		Sort familySort = Sort.by(Sort.Direction.DESC, "createdAt");
 		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), familySort);
 		
@@ -172,6 +176,7 @@ public class PersonService {
 	 * @return A list of non-family members associated with the given person, paginated as per the provided settings.
 	 */
 	public List<Person> getNonFamilyMembers(Person person, Pagination pagination) {
+		// Create PageRequest including Sorting
 		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
 		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
 		
@@ -196,6 +201,7 @@ public class PersonService {
 	 * @return A paginated list of friends associated with the given person.
 	 */
 	public List<Person> getFriends(Person person, Pagination pagination) {
+		// Create PageRequest including Sorting
 		Sort friendSort = Sort.by(Sort.Direction.DESC, "createdAt");
 		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), friendSort);
 		
@@ -220,6 +226,7 @@ public class PersonService {
 	 * @return A paginated list of persons who are not friends of the given person.
 	 */
 	public List<Person> getNonFriends(Person person, Pagination pagination) {
+		// Create PageRequest including Sorting
 		Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
 		PageRequest pageRequest = PageRequest.of(pagination.getPage(), pagination.getPageSize(), sort);
 		

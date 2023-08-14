@@ -30,7 +30,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logger.error("An error occurred:", ex);
 
         // Return a custom error response
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                	.body("An unexpected error occurred. Please try again later.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred. Please try again later.");
     }
 }

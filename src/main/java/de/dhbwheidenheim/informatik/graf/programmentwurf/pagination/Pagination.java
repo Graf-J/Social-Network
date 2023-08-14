@@ -1,5 +1,10 @@
 package de.dhbwheidenheim.informatik.graf.programmentwurf.pagination;
 
+
+/**
+ * The Pagination class represents a paginated result set, providing information
+ * about the current page, the number of items per page, and the total number of pages.
+ */
 public class Pagination {
 	private Integer page;
 	private Integer pageSize;

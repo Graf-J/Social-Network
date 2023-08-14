@@ -16,6 +16,9 @@ import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationReposi
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationService;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.relation.RelationType;
 
+/**
+ * Service class responsible for initializing the application with sample data.
+ */
 @Service
 public class InitializeService {
 	private final PersonRepository personRepository;
@@ -23,6 +26,14 @@ public class InitializeService {
 	private final RelationRepository relationRepository;
 	private final PostRepository postRepository;
 	
+	/**
+     * Constructor to initialize the service with required repositories and services.
+     *
+     * @param personRepository The repository for managing person data.
+     * @param relationService The service for managing relation-related operations.
+     * @param relationRepository The repository for managing relation data.
+     * @param postRepository The repository for managing post data.
+     */
 	public InitializeService(
 		PersonRepository personRepository, 
 		RelationService relationService,
@@ -35,6 +46,11 @@ public class InitializeService {
 		this.postRepository = postRepository;
 	}
 	
+	/**
+     * Creates and saves sample persons.
+     *
+     * @return A list of created persons.
+     */
 	public List<Person> createPersons() {
 		List<Person> persons = new ArrayList<>();
 
@@ -62,16 +78,26 @@ public class InitializeService {
 		return persons;
 	}
 	
+	/**
+     * Creates sample relations among the provided persons.
+     *
+     * @param persons The list of persons for whom relations are to be created.
+     */
 	public void createRelations(List<Person> persons) {
 		createMarriages(persons);
 		createFamilyMembers(persons);
 		createFriends(persons);
 	}
 	
+	/**
+     * Creates and saves sample posts among the provided persons.
+     *
+     * @param persons The list of persons for whom posts are to be created.
+     */
 	public void createPosts(List<Person> persons) {
 		List<Post> posts = new ArrayList<>();
 		
-		// Programmin Language Discussion
+		// Programming Language Discussion
 		posts.add(new Post("Was ist euere Lieblingsprogrammiersprache?", persons.get(0)));
 		posts.add(new Post("Ich programmiere am liebsten Webseiten, also JavaScript", persons.get(7), posts.get(0)));
 		posts.add(new Post("Versuch mal Typescript! Damit hast du mehr Typsicherheit.", persons.get(0), posts.get(1)));
@@ -92,15 +118,24 @@ public class InitializeService {
 		posts.add(new Post("Tere", persons.get(4), posts.get(12)));
 		posts.add(new Post("Zdravo", persons.get(5), posts.get(12)));
 		
-		
 		postRepository.saveAll(posts);
 	}
 	
+	/**
+     * Creates sample marriage relations among the provided persons.
+     *
+     * @param persons The list of persons for whom marriage relations are to be created.
+     */
 	private void createMarriages(List<Person> persons) {
 		relationService.addMarriageRelation(persons.get(1), persons.get(2));
 		relationService.addMarriageRelation(persons.get(10), persons.get(11));
 	}
 	
+	/**
+     * Creates sample family relations among the provided persons.
+     *
+     * @param persons The list of persons for whom family relations are to be created.
+     */
 	private void createFamilyMembers(List<Person> persons) {
 		relationService.addFamilyRelation(persons.get(0), persons.get(1));
 		relationService.addFamilyRelation(persons.get(0), persons.get(3));
@@ -108,6 +143,11 @@ public class InitializeService {
 		relationService.addFamilyRelation(persons.get(0), persons.get(5));
 	}
 	
+	/**
+     * Creates sample friend relations among the provided persons.
+     *
+     * @param persons The list of persons for whom friend relations are to be created.
+     */
 	private void createFriends(List<Person> persons) {
 		List<Relation> relations = new ArrayList<>();
 		

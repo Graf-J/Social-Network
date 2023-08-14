@@ -20,6 +20,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.dhbwheidenheim.informatik.graf.programmentwurf.person.Person;
 
+/**
+ * Represents a person entity with basic personal information.
+ * This class is annotated with JPA annotations to map it to the corresponding database table.
+ */
 @Entity
 @Table(name = "post")
 public class Post {

@@ -18,9 +18,9 @@
 <body>
     <div style="display: flex; justify-content: space-between; margin-top: 50px">
         <div style="width: 50vw; padding-left: 50px">
-            <h1 class="p-3">Freund hinzufügen</h1>
+            <h1 class="p-3">Freund zu ${ queryPerson.email } hinzufügen</h1>
 
-            <form:form action="/addFriend/${ id }" method="post" modelAttribute="person">
+            <form:form action="/addFriend/${ queryPerson.id }" method="post" modelAttribute="person">
                 <div class="row">
                     <div class="form-group col-md-12">
                         <label class="col-md-6" for="email">E-Mail des Freundes*</label>
@@ -32,7 +32,7 @@
 
                 <div class="row p-2">
                     <div class="col-md-9" style="display: flex; justify-content: space-between;">
-                        <button type="button" class="btn btn-danger" onclick="window.location.href='/person/${ id }'">Abbrechen</button>
+                        <button type="button" class="btn btn-danger" onclick="window.location.href='/person/${ queryPerson.id }'">Abbrechen</button>
                         <button type="submit" value="Submit" class="btn btn-success">Freund speichern</button>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                 <nav aria-label="Page navigation example" style="margin-left: 20px">
                     <ul class="pagination">
                         <c:forEach var="page" begin="1" end="${ pagination.numPages }">
-                            <li class="page-item"><a class="page-link" href="/addFriend/${ id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a></li>
+                            <li class="page-item"><a class="page-link" href="/addFriend/${ queryPerson.id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a></li>
                         </c:forEach>
                     </ul>
                 </nav>

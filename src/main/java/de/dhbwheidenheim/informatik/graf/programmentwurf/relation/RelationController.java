@@ -87,8 +87,8 @@ public class RelationController {
 			List<Person> singles = personService.getSinglesExcept(queryPerson, pagination);
 			
 			// Add Attributes to Model
-			model.addAttribute("id", id);
 			model.addAttribute("person", person);
+			model.addAttribute("queryPerson", queryPerson);
 			model.addAttribute("persons", singles);
 			model.addAttribute("pagination", pagination);
 			model.addAttribute("error", error);
@@ -184,8 +184,8 @@ public class RelationController {
 			List<Person> persons = personService.getNonFamilyMembers(queryPerson, pagination);
 			
 			// Add Attributes to Model
-			model.addAttribute("id", id);
 			model.addAttribute("person", person);
+			model.addAttribute("queryPerson", queryPerson);
 			model.addAttribute("persons", persons);
 			model.addAttribute("pagination", pagination);
 			model.addAttribute("error", error);
@@ -281,8 +281,8 @@ public class RelationController {
 			List<Person> persons = personService.getNonFriends(queryPerson, pagination);
 			
 			// Add Attributes to Model
-			model.addAttribute("id", id);
 			model.addAttribute("person", person);
+			model.addAttribute("queryPerson", queryPerson);
 			model.addAttribute("persons", persons);
 			model.addAttribute("pagination", pagination);
 			model.addAttribute("error", error);

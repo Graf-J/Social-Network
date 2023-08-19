@@ -142,7 +142,10 @@
                     <nav aria-label="Page navigation example" style="margin-left: 20px">
                         <ul class="pagination">
                             <c:forEach var="page" begin="1" end="${ familyPagination.numPages }">
-                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?familyPage=${ page - 1 }&familyPageSize=${ familyPagination.pageSize }">${ page }</a></li>
+                                <c:set var="isCurrentFamilyPage" value="${ familyPagination.page == page - 1 }" />
+                                <li class="page-item ${ isCurrentFamilyPage ? 'active' : '' }">
+                                    <a class="page-link" href="/person/${ person.id }?familyPage=${ page - 1 }&familyPageSize=${ familyPagination.pageSize }&friendPage=${ friendPagination.page }&friendPageSize=${ friendPagination.pageSize }">${ page }</a>
+                                </li>
                             </c:forEach>
                         </ul>
                     </nav>
@@ -183,7 +186,10 @@
                     <nav aria-label="Page navigation example" style="margin-left: 20px">
                         <ul class="pagination">
                             <c:forEach var="page" begin="1" end="${ friendPagination.numPages }">
-                                <li class="page-item"><a class="page-link" href="/person/${ person.id }?friendPage=${ page - 1 }&friendPageSize=${ friendPagination.pageSize }">${ page }</a></li>
+                                <c:set var="isCurrentFriendPage" value="${ friendPagination.page == page - 1 }" />
+                                <li class="page-item ${ isCurrentFriendPage ? 'active' : '' }">
+                                    <a class="page-link" href="/person/${ person.id }?familyPage=${ familyPagination.page }&familyPageSize=${ familyPagination.pageSize }&friendPage=${ page - 1 }&friendPageSize=${ friendPagination.pageSize }">${ page }</a>
+                                </li>
                             </c:forEach>
                         </ul>
                     </nav>

@@ -17,7 +17,7 @@
     <div class="container" style="margin-left: calc(40% - 120px)">
         <h1 class="p-3"> Beitrag hinzufügen</h1>
 
-        <form:form action="/person/${ personId }/post" method="post" modelAttribute="post">
+        <form:form action="/persons/${ personId }/posts" method="post" modelAttribute="post">
 
             <div class="row">
                 <div class="form-group col-md-12">
@@ -30,7 +30,7 @@
 
             <div class="row p-2">
             	<div class="col-md-6" style="display: flex; justify-content: space-between;">
-                    <button type="button" class="btn btn-danger" onclick="window.location.href='/person/${ personId }'">Abbrechen</button>
+                    <button type="button" class="btn btn-danger" onclick="window.location.href='/persons/${ personId }'">Abbrechen</button>
             		<button type="submit" value="Submit" class="btn btn-success">Beitrag speichern</button>
             	</div>
             </div>

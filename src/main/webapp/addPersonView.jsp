@@ -19,7 +19,7 @@
     <div class="container" style="margin-left: calc(40% - 120px)">
         <h1 class="p-3"> Person hinzufügen</h1>
 
-        <form:form action="/addPerson" method="post" modelAttribute="person">
+        <form:form action="/persons" method="post" modelAttribute="person">
 
             <div class="row">
             	<div class="form-group col-md-12">

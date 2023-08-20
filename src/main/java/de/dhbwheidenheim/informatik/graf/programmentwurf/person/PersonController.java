@@ -3,6 +3,7 @@ package de.dhbwheidenheim.informatik.graf.programmentwurf.person;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,8 +63,8 @@ public class PersonController {
 	 * @param error Error message retrieved from flash attributes.
 	 * @return Name of the view template, "personsView", rendered with provided data.
 	 */
-	@GetMapping("/")
-	public String getPersonsView(
+	@GetMapping(path={ "/", "/persons" })
+	public String showPersonsView(
 		Model model, 
 		@RequestParam(defaultValue = "0") String page, 
 		@RequestParam(defaultValue = "7") String pageSize, 
@@ -87,7 +88,7 @@ public class PersonController {
 	/**
 	 * Retrieves the view for displaying detailed information about a specific person.
 	 * 
-	 * This method is mapped to the HTTP GET request for "/person/{id}" using the @GetMapping annotation.
+	 * This method is mapped to the HTTP GET request for "/persons/{id}" using the @GetMapping annotation.
 	 * It fetches the details of the person with the specified ID from the data source.
 	 * If the person with the given ID does not exist, an IdNotFoundException is thrown.
 	 * 
@@ -110,8 +111,8 @@ public class PersonController {
 	 * @param id The ID of the person whose details are to be displayed.
 	 * @return The name of the view template, "personView", which will be rendered with the provided data.
 	 */
-	@GetMapping("person/{id}")
-	public String getPersonView(
+	@GetMapping("persons/{id}")
+	public String showPersonView(
 		Model model,
 		@RequestParam(defaultValue = "0") String familyPage, 
 		@RequestParam(defaultValue = "4") String familyPageSize, 
@@ -181,7 +182,7 @@ public class PersonController {
 	 * @return The name of the view template, "addPersonView", which will be rendered with the provided data.
 	 */
 	@GetMapping("/addPerson")
-	public String addPersonView(Model model, @ModelAttribute("error") String error) {
+	public String showAddPersonView(Model model, @ModelAttribute("error") String error) {
 		Person person = new Person();
 		
 		// Add Attributes to Model
@@ -194,7 +195,7 @@ public class PersonController {
 	/**
 	 * Adds a new person to the system.
 	 * 
-	 * This method is mapped to the HTTP POST request for "/addPerson" using the @PostMapping annotation.
+	 * This method is mapped to the HTTP POST request for "/persons" using the @PostMapping annotation.
 	 * It receives a Person object from the form submission, adds it to the system using the personService,
 	 * and then redirects the user to the main view ("/").
 	 * 
@@ -205,7 +206,7 @@ public class PersonController {
 	 * @param redirectAttributes The RedirectAttributes object to add flash attributes for redirection.
 	 * @return A redirection URL based on the outcome of the addition operation.
 	 */
-	@PostMapping("/addPerson")
+	@PostMapping("/persons")
 	public String addPerson(Person person, RedirectAttributes redirectAttributes) {
 		try {
 			personService.addPerson(person);
@@ -215,5 +216,54 @@ public class PersonController {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:" + ex.getRedirectPath();
 		}
+	}
+	
+	/**
+	 * Retrieves a paginated list of persons.
+	 *
+	 * This method handles the HTTP GET request for "/api/persons".
+	 * It retrieves a paginated list of persons based on the provided page and pageSize query parameters.
+	 * The retrieved persons are returned as a ResponseEntity containing a list of Person objects.
+	 *
+	 * @param page The page number for pagination (default: 0).
+	 * @param pageSize The number of items per page for pagination (default: 5).
+	 * @return A ResponseEntity containing a paginated list of persons.
+	 */
+	@GetMapping("/api/persons")
+	public ResponseEntity<List<Person>> getPersons(
+		@RequestParam(defaultValue = "0") String page, 
+		@RequestParam(defaultValue = "5") String pageSize
+	) {
+		// Extract Pagination Parameters
+		Long personCount = personService.countPersons();
+		Pagination pagination = paginationService.getPagination(page, pageSize, 5, personCount);
+		
+		// Query for Persons for corresponding Page Order by createdAt in Descending Order
+		List<Person> persons = personService.getPersons(pagination);
+		
+		return ResponseEntity.ok(persons);
+	}
+	
+	/**
+	 * Retrieves a person by their ID.
+	 *
+	 * This method handles the HTTP GET request for "/api/persons/{id}".
+	 * It retrieves a person based on the provided ID.
+	 * If the person with the specified ID does not exist, a Not Found response is returned.
+	 * The retrieved person is returned as a ResponseEntity containing a Person object.
+	 *
+	 * @param id The ID of the person to retrieve.
+	 * @return A ResponseEntity containing the retrieved person if found, or a Not Found response if the person does not exist.
+	 */
+	@GetMapping("/api/persons/{id}")
+	public ResponseEntity<Person> getPerson(@PathVariable Long id) {
+		Optional<Person> person = personService.getPerson(id);
+		
+		// Return not found if Person doesn't exist
+		if (person.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return ResponseEntity.ok(person.get());
 	}
 }

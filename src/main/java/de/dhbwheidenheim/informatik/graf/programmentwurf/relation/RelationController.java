@@ -1,7 +1,9 @@
 package de.dhbwheidenheim.informatik.graf.programmentwurf.relation;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +53,7 @@ public class RelationController {
 	/**
 	 * Retrieves the view for adding a marriage relation.
 	 *
-	 * This method handles the HTTP GET request for "/addMarriage/{id}".
+	 * This method handles the HTTP GET request for "/persons/{id}/addMarriage".
 	 * It prepares data for adding a marriage relation between a specified person and eligible singles.
 	 * Eligible singles are paginated and sorted by first name.
 	 *
@@ -63,8 +65,8 @@ public class RelationController {
 	 * @param id ID of the person for whom a marriage relation is being added.
 	 * @return The name of the view template, "addMarriageView", rendered with provided data.
 	 */
-	@GetMapping("/addMarriage/{id}")
-	public String getMarriageView(
+	@GetMapping("/persons/{id}/addMarriage")
+	public String showMarriageView(
 		Model model,
 		RedirectAttributes redirectAttributes,
 		@RequestParam(defaultValue = "0") String page, 
@@ -103,7 +105,7 @@ public class RelationController {
 	/**
 	 * Adds a new marriage relation between the specified person and the selected spouse.
 	 *
-	 * This method is mapped to the HTTP POST request for "/addMarriage/{id}" using the @PostMapping annotation.
+	 * This method is mapped to the HTTP POST request for "/persons/{id}/marriage" using the @PostMapping annotation.
 	 * It receives the details of the spouse from the form submission and creates a marriage relation between the creator
 	 * person (specified by the path variable) and the selected spouse. The creator person's ID is used to retrieve their details.
 	 *
@@ -116,7 +118,7 @@ public class RelationController {
 	 * @param id The ID of the creator person for the marriage relation.
 	 * @return A redirection URL based on the outcome of the addition operation.
 	 */
-	@PostMapping("/addMarriage/{id}")
+	@PostMapping("/persons/{id}/marriage")
 	public String addMarriage(
 		Person person, 
 		RedirectAttributes redirectAttributes,
@@ -129,17 +131,17 @@ public class RelationController {
 			
 			// Check if Email is specified
 			if (person.getEmail() == null || person.getEmail().isEmpty()) {
-				throw new InvalidFormInputException("/addMarriage/" + id, "Email has to be specified");
+				throw new InvalidFormInputException("/persons/" + id + "/addMarriage", "Email has to be specified");
 			}
 			
 			// Get Person by Email and throw Exception if not exists
 			Person receiverPerson = personService.getPerson(person.getEmail())
-				.orElseThrow(() -> new EmailNotFoundException("/addMarriage/" + id, "Person with email " + person.getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException("/persons/" + id + "/addMarriage", "Person with email " + person.getEmail() + " not found"));
 	
 			// Add Relation
 	        relationService.addMarriageRelation(creatorPerson, receiverPerson);
 			
-			return "redirect:/person/" + id;
+			return "redirect:/persons/" + id;
 		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:" + ex.getRedirectPath(); 
@@ -149,7 +151,7 @@ public class RelationController {
 	/**
 	 * Retrieves a paginated view of persons who can be added as family members and renders it to the "addFamilyMemberView" template.
 	 *
-	 * This method is mapped to the HTTP GET request for "/addFamilyMember/{id}" using the @GetMapping annotation.
+	 * This method is mapped to the HTTP GET request for "/persons/{id}/addFamilyMember" using the @GetMapping annotation.
 	 * Fetches a paginated list of persons who are not family members of the person with the provided ID.
 	 * Default pagination values are used if parameters are missing.
 	 * 
@@ -160,8 +162,8 @@ public class RelationController {
 	 * @param id The ID of the person for whom family members are being added.
 	 * @return Name of the view template, "addFamilyMemberView", rendered with provided data.
 	 */
-	@GetMapping("/addFamilyMember/{id}")
-	public String getFamilyView(
+	@GetMapping("/persons/{id}/addFamilyMember")
+	public String showFamilyView(
 		Model model,
 		RedirectAttributes redirectAttributes,
 		@RequestParam(defaultValue = "0") String page, 
@@ -200,7 +202,7 @@ public class RelationController {
 	/**
 	 * Adds a new family member to the system for a specific person.
 	 *
-	 * This method is mapped to the HTTP POST request for "/addFamilyMember/{id}" using the @PostMapping annotation.
+	 * This method is mapped to the HTTP POST request for "/persons/{id}/family" using the @PostMapping annotation.
 	 * It receives a Person object from the form submission, identifies the creator person by their ID,
 	 * validates the form input, and then adds a family relation between the creator and receiver persons.
 	 * 
@@ -212,7 +214,7 @@ public class RelationController {
 	 * @param id The ID of the person for whom a new family member is being added.
 	 * @return A redirection URL based on the outcome of the addition operation.
 	 */
-	@PostMapping("/addFamilyMember/{id}")
+	@PostMapping("/persons/{id}/family")
 	public String addFamily(
 		Person person, 
 		RedirectAttributes redirectAttributes,
@@ -225,17 +227,17 @@ public class RelationController {
 			
 			// Check if Email is specified
 			if (person.getEmail() == null || person.getEmail().isEmpty()) {
-				throw new InvalidFormInputException("/addFamilyMember/" + id, "Email has to be specified");
+				throw new InvalidFormInputException("/persons/" + id + "/addFamilyMember", "Email has to be specified");
 			}
 			
 			// Get Person by Email and throw Exception if not exists
 			Person receiverPerson = personService.getPerson(person.getEmail())
-				.orElseThrow(() -> new EmailNotFoundException("/addFamilyMember/" + id, "Person with email " + person.getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException("/persons/" + id + "/addFamilyMember", "Person with email " + person.getEmail() + " not found"));
 	
 			// Add Relation
 	        relationService.addFamilyRelation(creatorPerson, receiverPerson);
 			
-			return "redirect:/person/" + id;
+			return "redirect:/persons/" + id;
 		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:" + ex.getRedirectPath(); 
@@ -245,7 +247,7 @@ public class RelationController {
 	/**
 	 * Retrieves a paginated view of persons who can be added as friends and renders it to the "addFriendView" template.
 	 *
-	 * This method is mapped to the HTTP GET request for "/addFriend/{id}" using the @GetMapping annotation.
+	 * This method is mapped to the HTTP GET request for "/persons/{id}/addFriend" using the @GetMapping annotation.
 	 * Fetches a paginated list of persons who are not friends of the person with the provided ID.
 	 * Default pagination values are used if parameters are missing.
 	 * 
@@ -257,8 +259,8 @@ public class RelationController {
 	 * @param id The ID of the person for whom friends are being added.
 	 * @return Name of the view template, "addFriendView", rendered with provided data.
 	 */
-	@GetMapping("/addFriend/{id}")
-	public String getFriendView(
+	@GetMapping("/persons/{id}/addFriend")
+	public String showFriendView(
 		Model model,
 		RedirectAttributes redirectAttributes,
 		@RequestParam(defaultValue = "0") String page, 
@@ -297,7 +299,7 @@ public class RelationController {
 	/**
 	 * Adds a new friend relation between persons.
 	 * 
-	 * This method is mapped to the HTTP POST request for "/addFriend/{id}" using the @PostMapping annotation.
+	 * This method is mapped to the HTTP POST request for "/persons/{id}/friend" using the @PostMapping annotation.
 	 * It receives a Person object from the form submission, identifies the creator person by ID, and the receiver person
 	 * by email. It then adds a friend relation between the creator and receiver persons using the relationService.
 	 * 
@@ -309,7 +311,7 @@ public class RelationController {
 	 * @param id The ID of the person for whom the friend relation is being added.
 	 * @return A redirection URL based on the outcome of the friend relation addition operation.
 	 */
-	@PostMapping("/addFriend/{id}")
+	@PostMapping("/persons/{id}/friend")
 	public String addFriend(
 		Person person, 
 		RedirectAttributes redirectAttributes,
@@ -322,20 +324,117 @@ public class RelationController {
 			
 			// Check if Email is specified
 			if (person.getEmail() == null || person.getEmail().isEmpty()) {
-				throw new InvalidFormInputException("/addFriend/" + id, "Email has to be specified");
+				throw new InvalidFormInputException("/persons/" + id + "/addFriend", "Email has to be specified");
 			}
 			
 			// Get Person by Email and throw Exception if not exists
 			Person receiverPerson = personService.getPerson(person.getEmail())
-				.orElseThrow(() -> new EmailNotFoundException("/addFriend/" + id, "Person with email " + person.getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException("/persons/" + id + "/addFriend", "Person with email " + person.getEmail() + " not found"));
 			
 			// Add Relation
 	        relationService.addFriendRelation(creatorPerson, receiverPerson);
 			
-			return "redirect:/person/" + id;
+			return "redirect:/persons/" + id;
 		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:" + ex.getRedirectPath(); 
 		}
+	}
+	
+	/**
+	 * Retrieves the spouse of a specific person.
+	 *
+	 * This method handles the HTTP GET request for "/api/persons/{id}/marriage".
+	 * It fetches the person with the given ID and then retrieves their spouse.
+	 * The retrieved spouse is returned as a ResponseEntity containing a Person object.
+	 *
+	 * If the person with the specified ID does not exist, a Not Found response is returned.
+	 * If the person does not have a spouse, a Not Found response is returned.
+	 *
+	 * @param id The ID of the person whose spouse is being retrieved.
+	 * @return A ResponseEntity containing the spouse if found, or a Not Found response if the person or spouse does not exist.
+	 */
+	@GetMapping("/api/persons/{id}/spouse")
+	public ResponseEntity<Person> getSpouse(@PathVariable Long id) {
+		// Get Person by Id and return Not Found if not exists
+		Optional<Person> person = personService.getPerson(id);
+		if (person.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		// Get Spouse and return Not Found if not exists
+		Optional<Person> spouse = personService.getSpouse(person.get());
+		if (spouse.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return ResponseEntity.ok(spouse.get());
+	}
+	
+	/**
+	 * Retrieves a list of friends of a specific person with pagination.
+	 *
+	 * This method handles the HTTP GET request for "/api/persons/{id}/friends".
+	 * It fetches the person with the given ID and then retrieves their list of friends.
+	 * The retrieved friends are returned as a ResponseEntity containing a list of Person objects,
+	 * with pagination based on the provided page and pageSize query parameters.
+	 *
+	 * If the person with the specified ID does not exist, a Not Found response is returned.
+	 *
+	 * @param page The page number for pagination (default: 0).
+	 * @param pageSize The number of items per page for pagination (default: 5).
+	 * @param id The ID of the person whose friends are being retrieved.
+	 * @return A ResponseEntity containing a list of friends if found, or a Not Found response if the person does not exist.
+	 */
+	@GetMapping("/api/persons/{id}/friends")
+	public ResponseEntity<List<Person>> getFriends(
+		@RequestParam(defaultValue = "0") String page, 
+		@RequestParam(defaultValue = "5") String pageSize,
+		@PathVariable Long id
+	) {
+		// Get Person by Id and return Not Found if not exists
+		Optional<Person> person = personService.getPerson(id);
+		if (person.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		// Get Friends with Pagination
+		Long friendCount = personService.countFriends(person.get());
+		Pagination pagination = paginationService.getPagination(page, pageSize, 5, friendCount);
+		List<Person> friends = personService.getFriends(person.get(), pagination);
+		
+		return ResponseEntity.ok(friends);
+	}
+	
+	/**
+	 * Retrieves a list of family members of a specific person with pagination.
+	 *
+	 * This method handles the HTTP GET request for "/api/persons/{id}/family".
+	 * It fetches the person with the given ID and then retrieves their list of family members.
+	 * The retrieved family members are returned as a ResponseEntity containing a list of Person objects,
+	 * with pagination based on the provided page and pageSize query parameters.
+	 *
+	 * If the person with the specified ID does not exist, a Not Found response is returned.
+	 *
+	 * @param page The page number for pagination (default: 0).
+	 * @param pageSize The number of items per page for pagination (default: 5).
+	 * @param id The ID of the person whose family members are being retrieved.
+	 * @return A ResponseEntity containing a list of family members if found, or a Not Found response if the person does not exist.
+	 */
+	@GetMapping("/api/persons/{id}/family")
+	public ResponseEntity<List<Person>> getFamily(
+		@RequestParam(defaultValue = "0") String page, 
+		@RequestParam(defaultValue = "5") String pageSize,
+		@PathVariable Long id
+	) {
+		// Get Person by Id and return Not Found if not exists
+		Optional<Person> person = personService.getPerson(id);
+		if (person.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		// Get Family Members with Pagination
+		Long familyMemberCount = personService.countFamilyMembers(person.get());
+		Pagination pagination = paginationService.getPagination(page, pageSize, 5, familyMemberCount);
+		List<Person> familyMembers = personService.getFamilyMembers(person.get(), pagination);
+		
+		return ResponseEntity.ok(familyMembers);
 	}
 }

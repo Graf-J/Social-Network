@@ -46,12 +46,12 @@
                     <li class="list-group-item"><b>Alter: </b>${ person.age}</li>
                     <li class="list-group-item"><b>Ehepartner: </b>
                         <c:if test="${ spouse.isPresent() }">
-                            <button class="btn btn-primary" onclick="window.location.href = '/person/${ spouse.get().getId() }'">
+                            <button class="btn btn-primary" onclick="window.location.href = '/persons/${ spouse.get().getId() }'">
                                 ${ spouse.get().getFirstName() } ${ spouse.get().getLastName() }
                             </button>
                         </c:if>
                         <c:if test="${ spouse.isEmpty() }">
-                            <button class="btn btn-warning" onclick="window.location.href='/addMarriage/${ person.getId() }'">
+                            <button class="btn btn-warning" onclick="window.location.href='/persons/${ person.getId() }/addMarriage'">
                                 Ehepartner hinzufügen
                             </button>
                         </c:if>
@@ -80,7 +80,7 @@
         <div class="w-100" style="grid-row: span 2;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding-left: 20px; padding-top: 20px; padding-right: 20px;">
                 <h2>Beiträge</h2>
-                <button class="btn btn-warning" onclick="window.location.href='/person/${ person.id }/post'">
+                <button class="btn btn-warning" onclick="window.location.href='/persons/${ person.id }/posts'">
                     Beitrag hinzufügen
                 </button>
             </div>
@@ -92,7 +92,7 @@
                             <small>${ post.timeAgo }</small>
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                            <button class="btn btn-warning btn-sm" onclick="window.location.href='/person/${ person.id }/post/${ post.id }'">
+                            <button class="btn btn-warning btn-sm" onclick="window.location.href='/persons/${ person.id }/posts/${ post.id }'">
                                 Kommentieren
                             </button>
                         </div>
@@ -112,7 +112,7 @@
         <div class="p-3" style="display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                 <h2>Familie</h2>
-                <button class="btn btn-warning" onclick="window.location.href='/addFamilyMember/${ person.id }'">
+                <button class="btn btn-warning" onclick="window.location.href='/persons/${ person.id }/addFamilyMember'">
                     Familienmitglied hinzufügen
                 </button>
             </div>
@@ -129,7 +129,7 @@
                         <td>${ familyMember.lastName }</td>
                         <td>${ familyMember.email }</td>
                         <td>
-                            <button class="btn btn-primary" onclick="window.location.href = '/person/${ familyMember.id }'">
+                            <button class="btn btn-primary" onclick="window.location.href = '/persons/${ familyMember.id }'">
                                 View
                             </button>
                         </td>
@@ -144,7 +144,7 @@
                             <c:forEach var="page" begin="1" end="${ familyPagination.numPages }">
                                 <c:set var="isCurrentFamilyPage" value="${ familyPagination.page == page - 1 }" />
                                 <li class="page-item ${ isCurrentFamilyPage ? 'active' : '' }">
-                                    <a class="page-link" href="/person/${ person.id }?familyPage=${ page - 1 }&familyPageSize=${ familyPagination.pageSize }&friendPage=${ friendPagination.page }&friendPageSize=${ friendPagination.pageSize }">${ page }</a>
+                                    <a class="page-link" href="/persons/${ person.id }?familyPage=${ page - 1 }&familyPageSize=${ familyPagination.pageSize }&friendPage=${ friendPagination.page }&friendPageSize=${ friendPagination.pageSize }">${ page }</a>
                                 </li>
                             </c:forEach>
                         </ul>
@@ -156,7 +156,7 @@
         <div class="p-3" style="display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                 <h2>Freunde</h2>
-                <button class="btn btn-warning" onclick="window.location.href='/addFriend/${ person.id }'">
+                <button class="btn btn-warning" onclick="window.location.href='/persons/${ person.id }/addFriend'">
                     Freund hinzufügen
                 </button>
             </div>
@@ -173,7 +173,7 @@
                         <td>${ friend.lastName }</td>
                         <td>${ friend.email }</td>
                         <td>
-                            <button class="btn btn-primary" onclick="window.location.href='/person/${ friend.id }'">
+                            <button class="btn btn-primary" onclick="window.location.href='/persons/${ friend.id }'">
                                 View
                             </button>
                         </td>
@@ -188,7 +188,7 @@
                             <c:forEach var="page" begin="1" end="${ friendPagination.numPages }">
                                 <c:set var="isCurrentFriendPage" value="${ friendPagination.page == page - 1 }" />
                                 <li class="page-item ${ isCurrentFriendPage ? 'active' : '' }">
-                                    <a class="page-link" href="/person/${ person.id }?familyPage=${ familyPagination.page }&familyPageSize=${ familyPagination.pageSize }&friendPage=${ page - 1 }&friendPageSize=${ friendPagination.pageSize }">${ page }</a>
+                                    <a class="page-link" href="/persons/${ person.id }?familyPage=${ familyPagination.page }&familyPageSize=${ familyPagination.pageSize }&friendPage=${ page - 1 }&friendPageSize=${ friendPagination.pageSize }">${ page }</a>
                                 </li>
                             </c:forEach>
                         </ul>

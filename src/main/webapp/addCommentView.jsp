@@ -22,7 +22,7 @@
 
             <h1 class="p-3">Kommentar hinzufügen</h1>
 
-            <form:form action="/person/${ person.id }/post/${ parentPost.id }" method="post" modelAttribute="post">
+            <form:form action="/persons/${ person.id }/posts/${ parentPost.id }" method="post" modelAttribute="post">
                 <div class="row">
                     <div class="form-group col-md-12">
                         <label class="col-md-6" for="email">E-Mail des Verfassers*</label>
@@ -43,7 +43,7 @@
 
                 <div class="row p-2">
                     <div class="col-md-6" style="display: flex; justify-content: space-between;">
-                        <button type="button" class="btn btn-danger" onclick="window.location.href='/person/${ person.id }'">Abbrechen</button>
+                        <button type="button" class="btn btn-danger" onclick="window.location.href='/persons/${ person.id }'">Abbrechen</button>
                         <button type="submit" value="Submit" class="btn btn-success">Beitrag speichern</button>
                     </div>
                 </div>
@@ -77,7 +77,10 @@
                 <nav aria-label="Page navigation example" style="margin-left: 20px">
                     <ul class="pagination">
                         <c:forEach var="page" begin="1" end="${ pagination.numPages }">
-                            <li class="page-item"><a class="page-link" href="/person/${ person.id }/post/${ parentPost.id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a></li>
+                            <c:set var="isCurrentPage" value="${ pagination.page == page - 1 }" />
+                            <li class="page-item ${ isCurrentPage ? 'active' : '' }">
+                                <a class="page-link" href="/persons/${ person.id }/posts/${ parentPost.id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a>
+                            </li>
                         </c:forEach>
                     </ul>
                 </nav>

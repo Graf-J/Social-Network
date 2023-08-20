@@ -7,7 +7,7 @@
                 <div>
                     <div>
                         <div class="d-flex w-100 justify-content-between">
-                            <button class="btn btn-link" onclick="window.location.href='/person/${ post.creator.id }'">
+                            <button class="btn btn-link" onclick="window.location.href='/persons/${ post.creator.id }'">
                                 <b>${ post.creator.firstName } ${ post.creator.lastName }</b>
                             </button>
                             <small class="mt-2">${ post.timeAgo }</small>
@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <button class="btn btn-warning btn-sm" onclick="window.location.href='/person/${ param.personId }/post/${ post.id }'">
+                    <button class="btn btn-warning btn-sm" onclick="window.location.href='/persons/${ param.personId }/posts/${ post.id }'">
                         Kommentieren
                     </button>
                 </div>

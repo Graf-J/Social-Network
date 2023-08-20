@@ -20,7 +20,7 @@
         <div style="width: 50vw; padding-left: 50px">
             <h1 class="p-3">Ehepartner zu ${ queryPerson.email } hinzufügen</h1>
 
-            <form:form action="/addMarriage/${ queryPerson.id }" method="post" modelAttribute="person">
+            <form:form action="/persons/${ queryPerson.id }/marriage" method="post" modelAttribute="person">
                 <div class="row">
                     <div class="form-group col-md-12">
                         <label class="col-md-6" for="email">E-Mail des Ehepartners*</label>
@@ -32,7 +32,7 @@
 
                 <div class="row p-2">
                     <div class="col-md-9" style="display: flex; justify-content: space-between;">
-                        <button type="button" class="btn btn-danger" onclick="window.location.href='/person/${ queryPerson.id }'">Abbrechen</button>
+                        <button type="button" class="btn btn-danger" onclick="window.location.href='/persons/${ queryPerson.id }'">Abbrechen</button>
                         <button type="submit" value="Submit" class="btn btn-success">Ehepartner speichern</button>
                     </div>
                 </div>
@@ -66,7 +66,10 @@
                 <nav aria-label="Page navigation example" style="margin-left: 20px">
                     <ul class="pagination">
                         <c:forEach var="page" begin="1" end="${ pagination.numPages }">
-                            <li class="page-item"><a class="page-link" href="/addMarriage/${ queryPerson.id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a></li>
+                            <c:set var="isCurrentPage" value="${ pagination.page == page - 1 }" />
+                            <li class="page-item ${ isCurrentPage ? 'active' : '' }">
+                                <a class="page-link" href="/persons/${ queryPerson.id }/addMarriage?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a>
+                            </li>
                         </c:forEach>
                     </ul>
                 </nav>

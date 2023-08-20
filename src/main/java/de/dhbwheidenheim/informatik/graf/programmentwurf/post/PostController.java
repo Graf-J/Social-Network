@@ -1,7 +1,9 @@
 package de.dhbwheidenheim.informatik.graf.programmentwurf.post;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +53,7 @@ public class PostController {
 	/**
 	 * Retrieves the view for adding a new post.
 	 * 
-	 * This method is mapped to the HTTP GET request for "/person/{personId}/post" using the @GetMapping annotation.
+	 * This method is mapped to the HTTP GET request for "/persons/{personId}/posts" using the @GetMapping annotation.
 	 * It prepares a new Post object and adds it to the Model, along with the personId and any error message from a previous operation.
 	 * 
 	 * The provided data is used to render the "addPostView" template, allowing users to input details for a new post.
@@ -62,8 +64,8 @@ public class PostController {
 	 * @param personId The ID of the person for whom the post is being added.
 	 * @return The name of the view template, "addPostView", which will be rendered with the provided data.
 	 */
-	@GetMapping("/person/{personId}/post")
-	public String addPostView(
+	@GetMapping("/persons/{personId}/posts")
+	public String showAddPostView(
 		Model model, 
 		RedirectAttributes redirectAttributes,
 		@ModelAttribute("error") String error,
@@ -91,7 +93,7 @@ public class PostController {
 	/**
 	 * Retrieves the view for adding a new comment to a post.
 	 * 
-	 * This method is mapped to the HTTP GET request for "/person/{personId}/post/{postId}" using the @GetMapping annotation.
+	 * This method is mapped to the HTTP GET request for "/persons/{personId}/posts/{postId}" using the @GetMapping annotation.
 	 * It prepares a new Post object (comment) and adds it to the Model, along with the parent post details, the person's details,
 	 * and any error message from a previous operation.
 	 * 
@@ -108,8 +110,8 @@ public class PostController {
 	 * @param postId The ID of the parent post for which the comment is being added.
 	 * @return The name of the view template, "addCommentView", rendered with provided data.
 	 */
-	@GetMapping("/person/{personId}/post/{postId}")
-	public String addCommentView(
+	@GetMapping("/persons/{personId}/posts/{postId}")
+	public String showAddCommentView(
 		Model model,
 		RedirectAttributes redirectAttributes,
 		@RequestParam(defaultValue = "0") String page, 
@@ -133,7 +135,7 @@ public class PostController {
 			
 			// Check if Post Exists
 			Post parentPost = postService.getPost(postId)
-				.orElseThrow(() -> new RedirectException("/person/" + personId, "Post with Id " + postId + " not found"));
+				.orElseThrow(() -> new RedirectException("/persons/" + personId, "Post with Id " + postId + " not found"));
 			
 			// Add Attributes to Model
 			model.addAttribute("post", post);
@@ -153,7 +155,7 @@ public class PostController {
 	/**
 	 * Adds a new post to a person's profile.
 	 * 
-	 * This method is mapped to the HTTP POST request for "/person/{personId}/post" using the @PostMapping annotation.
+	 * This method is mapped to the HTTP POST request for "/persons/{personId}/posts" using the @PostMapping annotation.
 	 * It receives a Post object from the form submission, adds it to the system using the postService, 
 	 * and then redirects the user back to the person's profile view.
 	 * 
@@ -165,7 +167,7 @@ public class PostController {
 	 * @param personId The ID of the person for whom the post is being added.
 	 * @return A redirection URL based on the outcome of the addition operation.
 	 */
-	@PostMapping("/person/{personId}/post")
+	@PostMapping("/persons/{personId}/posts")
 	public String addPost(
 		Post post, 
 		RedirectAttributes redirectAttributes,
@@ -174,7 +176,7 @@ public class PostController {
 		try {
 			// Check Form-Input Data
 			if (post.getContent() == null || post.getContent().isEmpty()) {
-				throw new InvalidFormInputException("/person/" + personId + "/post", "Content has to be specified");
+				throw new InvalidFormInputException("/persons/" + personId + "/posts", "Content has to be specified");
 			}
 			
 			// Get Creator and throw Exception if not exists
@@ -184,7 +186,7 @@ public class PostController {
 			// Add Post
 			postService.addPost(new Post(post.getContent(), creator));
 			
-			return "redirect:/person/" + personId;
+			return "redirect:/persons/" + personId;
 		}  catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:" + ex.getRedirectPath();
@@ -194,7 +196,7 @@ public class PostController {
 	/**
 	 * Adds a new comment to a post on a person's profile.
 	 *
-	 * This method is mapped to the HTTP POST request for "/person/{personId}/post/{postId}" using the @PostMapping annotation.
+	 * This method is mapped to the HTTP POST request for "/persons/{personId}/posts/{postId}" using the @PostMapping annotation.
 	 * It receives a Post object from the form submission, representing the comment content and the creator's email.
 	 * The comment is added to the specified parent post using the postService, and then the user is redirected back
 	 * to the person's profile view.
@@ -208,7 +210,7 @@ public class PostController {
 	 * @param postId The ID of the parent post to which the comment is being added.
 	 * @return A redirection URL based on the outcome of the addition operation.
 	 */
-	@PostMapping("/person/{personId}/post/{postId}")
+	@PostMapping("/persons/{personId}/posts/{postId}")
 	public String addComment(
 		Post post, 
 		RedirectAttributes redirectAttributes,
@@ -218,13 +220,13 @@ public class PostController {
 		try {
 			// Check Form-Input Data
 			if (post.getCreator() == null) {
-				throw new InvalidFormInputException("/person/" + personId + "/post/" + postId, "Creator with Email has to be specified");
+				throw new InvalidFormInputException("/persons/" + personId + "/posts/" + postId, "Creator with Email has to be specified");
 			}
 			if (post.getCreator().getEmail() == null || post.getCreator().getEmail().isEmpty()) {
-				throw new InvalidFormInputException("/person/" + personId + "/post/" + postId, "Creator with Email has to be specified");
+				throw new InvalidFormInputException("/persons/" + personId + "/posts/" + postId, "Creator with Email has to be specified");
 			}
 			if (post.getContent() == null || post.getContent().isEmpty()) {
-				throw new InvalidFormInputException("/person/" + personId + "/post/" + postId, "Content has to be specified");
+				throw new InvalidFormInputException("/persons/" + personId + "/posts/" + postId, "Content has to be specified");
 			}
 			
 			// Check if personId exists
@@ -233,19 +235,44 @@ public class PostController {
 			
 			// Get Parent Post and throw Exception if not exists
 			Post parentPost = postService.getPost(postId)
-				.orElseThrow(() -> new IdNotFoundException("/person/" + personId, "Post with Id " + postId + " not found"));
+				.orElseThrow(() -> new IdNotFoundException("/persons/" + personId, "Post with Id " + postId + " not found"));
 			
 			// Get Creator and throw Exception if not exists
 			Person creator = personService.getPerson(post.getCreator().getEmail())
-				.orElseThrow(() -> new EmailNotFoundException("/person/" + personId + "/post/" + postId, "Person with email " + post.getCreator().getEmail() + " not found"));
+				.orElseThrow(() -> new EmailNotFoundException("/persons/" + personId + "/posts/" + postId, "Person with email " + post.getCreator().getEmail() + " not found"));
 			
 			// Add Post
 			postService.addPost(new Post(post.getContent(), creator, parentPost));
 			
-			return "redirect:/person/" + personId;
+			return "redirect:/persons/" + personId;
 		} catch (RedirectException ex) {
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 			return "redirect:" + ex.getRedirectPath();
 		}
+	}
+	
+	/**
+	 * Retrieves a list of posts created by a specific person.
+	 *
+	 * This method handles the HTTP GET request for "/api/persons/{id}/posts".
+	 * It fetches the person with the given ID and then retrieves the posts created by that person.
+	 * The retrieved posts are returned as a ResponseEntity containing a list of Post objects.
+	 *
+	 * If the person with the specified ID does not exist, a Not Found response is returned.
+	 *
+	 * @param id The ID of the person whose posts are being retrieved.
+	 * @return A ResponseEntity containing a list of posts if found, or a Not Found response if the person does not exist.
+	 */
+	@GetMapping("/api/persons/{id}/posts")
+	public ResponseEntity<List<Post>> getPosts(@PathVariable Long id) {
+		// Get Person by Id and return Not Found if not exists
+		Optional<Person> person = personService.getPerson(id);
+		if (person.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		List<Post> posts = postService.getPostsByCreator(person.get());
+		
+		return ResponseEntity.ok(posts);
 	}
 }

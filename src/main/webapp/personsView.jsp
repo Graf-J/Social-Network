@@ -49,7 +49,7 @@
                     <td>${ person.birthday }</td>
                     <td>${ person.age }</td>
                     <td>
-                        <button class="btn btn-primary" onclick="window.location.href = 'person/${ person.id }'">View</button>
+                        <button class="btn btn-primary" onclick="window.location.href = 'persons/${ person.id }'">View</button>
                     </td>
                 </tr>
             </c:forEach>
@@ -60,13 +60,16 @@
             <nav aria-label="Page navigation example" style="margin-left: 20px">
                 <ul class="pagination">
                     <c:forEach var="page" begin="1" end="${ pagination.numPages }">
-                        <li class="page-item"><a class="page-link" href="/${ id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a></li>
+                        <c:set var="isCurrentPage" value="${ pagination.page == page - 1 }" />
+                        <li class="page-item ${ isCurrentPage ? 'active' : '' }">
+                            <a class="page-link" href="/${ id }?page=${ page - 1 }&pageSize=${ pagination.pageSize }">${ page }</a>
+                        </li>
                     </c:forEach>
                 </ul>
             </nav>
         </div>
 
-        <button type="button" class="btn btn-warning btn-block" onclick="window.location.href = '/addPerson'">
+        <button type="button" class="btn btn-warning btn-block" onclick="window.location.href='/addPerson'">
             Neue Person hinzufügen
         </button>
     </div>

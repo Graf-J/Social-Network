@@ -28,6 +28,7 @@ public class RelationService {
 	 * 
 	 * This method handles the addition of a marriage relation between the specified creator and receiver persons.
 	 * It performs validation checks to ensure that the two persons are not the same, and that they are not already married to someone else.
+	 * If one of the two persons who want marry is less than 18 years old, an exception is thrown with an appropriate error message
 	 * If the relation already exists, an exception is thrown with an appropriate error message.
 	 * 
 	 * The method first checks if there's a marriage relation where either the creator or receiver is already married.
@@ -43,6 +44,14 @@ public class RelationService {
 		// Check that the two Persons aren't the same Person
 		if (creator.getId() == receiver.getId()) {
 			throw new InvalidRelationException("/persons/" + creator.getId() + "/addMarriage", "You can't marry yourself");
+		}
+		
+		// Check if both persons are at least 18 years old
+		if (creator.getAge() < 18) {
+			throw new InvalidRelationException("/persons/" + creator.getId(), creator.getEmail() + " is underage and not allowed to marry");
+		}
+		if (receiver.getAge() < 18) {
+			throw new InvalidRelationException("/persons/" + creator.getId() + "/addMarriage", receiver.getEmail() + " is underage and not allowed to marry");
 		}
 		
 		// Check if there exists a relation where one of these is already married

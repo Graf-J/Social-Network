@@ -51,8 +51,8 @@
                             </button>
                         </c:if>
                         <c:if test="${ spouse.isEmpty() }">
-                            <button class="btn btn-warning" onclick="window.location.href='/persons/${ person.getId() }/addMarriage'">
-                                Ehepartner hinzufügen
+                            <button class="btn btn-warning" ${ person.age < 18 ? "disabled" : "" } onclick="window.location.href='/persons/${ person.getId() }/addMarriage'">
+                                ${ person.age < 18 ? "Person minderjährig" : "Ehepartner hinzufügen" }
                             </button>
                         </c:if>
                     </li>

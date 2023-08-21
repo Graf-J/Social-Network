@@ -36,9 +36,9 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 	List<Person> findAllExcept(Person person, Pageable pageable);
 	
 	/**
-	 * Counts the number of single persons excluding the specified person using a custom JPQL query.
+	 * Counts the number of single persons which are over 17 years old excluding the specified person using a custom JPQL query.
 	 *
-	 * This method calculates the count of persons who are considered single, excluding the provided person.
+	 * This method calculates the count of persons who are considered single and over 17 years old, excluding the provided person.
 	 * It uses a JPQL query to find the count of persons who are not involved in any marriage relations
 	 * or are not part of the provided person's relations.
 	 *
@@ -48,13 +48,13 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 	@Query("SELECT COUNT(p) FROM Person p WHERE p.id NOT IN " +
 	       "(SELECT DISTINCT p.id FROM Relation r " + 
 	       "INNER JOIN Person p ON p.id = r.creator.id OR p.id = r.receiver.id " + 
-	       "WHERE r.type = 'marriage' OR p = ?1)")
+	       "WHERE r.type = 'marriage' OR p = ?1 OR TIMESTAMPDIFF(YEAR, p.birthday, CURRENT_DATE) < 18)")
 	Long countSinglesExcept(Person person);
 	
 	/**
-	 * Retrieves a paginated list of single persons excluding the specified person using a custom JPQL query.
+	 * Retrieves a paginated list of single persons which are over 17 years old excluding the specified person using a custom JPQL query.
 	 *
-	 * This method retrieves a paginated list of persons who are considered single, excluding the provided person.
+	 * This method retrieves a paginated list of persons who are considered single and older than 17, excluding the provided person.
 	 * It uses a JPQL query to find persons who are not involved in any marriage relations or are not part of
 	 * the provided person's relations. The results are returned in the specified pagination order.
 	 *
@@ -65,7 +65,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 	@Query("SELECT p FROM Person p WHERE p.id NOT IN " +
 	       "(SELECT DISTINCT p.id FROM Relation r " + 
 	       "INNER JOIN Person p ON p.id = r.creator.id OR p.id = r.receiver.id " + 
-	       "WHERE r.type = 'marriage' OR p = ?1)")
+	       "WHERE r.type = 'marriage' OR p = ?1 OR TIMESTAMPDIFF(YEAR, p.birthday, CURRENT_DATE) < 18)")
 	List <Person> findSinglesExcept(Person person, Pageable pageable);
 	
 	/**

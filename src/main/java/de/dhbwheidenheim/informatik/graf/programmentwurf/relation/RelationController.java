@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.EmailNotFoundException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.IdNotFoundException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.InvalidFormInputException;
+import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.InvalidRelationException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.exceptions.RedirectException;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.Pagination;
 import de.dhbwheidenheim.informatik.graf.programmentwurf.pagination.PaginationService;
@@ -56,6 +57,7 @@ public class RelationController {
 	 * This method handles the HTTP GET request for "/persons/{id}/addMarriage".
 	 * It prepares data for adding a marriage relation between a specified person and eligible singles.
 	 * Eligible singles are paginated and sorted by first name.
+	 * If the person is less then 18 years old a error is thrown
 	 *
 	 * @param model Spring Model object for passing data to the view.
 	 * @param redirectAttributes RedirectAttributes for adding error messages.
@@ -80,6 +82,11 @@ public class RelationController {
 			// Get Person by ID and throw Exception if not exists
 			Person queryPerson = personService.getPerson(id)
 				.orElseThrow(() -> new IdNotFoundException("/", "Person with Id " + id + " not found"));
+			
+			// Check if Person is at least 18 years old
+			if (queryPerson.getAge() < 18) {
+				throw new InvalidRelationException("/persons/" + id, queryPerson.getEmail() + " is underage and not allowed to marry");
+			}
 			
 			// Get the Pagination Information
 			Long singlesCount = personService.countSinglesExcept(queryPerson);

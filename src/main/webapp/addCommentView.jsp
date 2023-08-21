@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
@@ -44,7 +44,7 @@
                 <div class="row p-2">
                     <div class="col-md-6" style="display: flex; justify-content: space-between;">
                         <button type="button" class="btn btn-danger" onclick="window.location.href='/persons/${ person.id }'">Abbrechen</button>
-                        <button type="submit" value="Submit" class="btn btn-success">Beitrag speichern</button>
+                        <button type="submit" value="Submit" class="btn btn-success">Kommentar speichern</button>
                     </div>
                 </div>
             </form:form>

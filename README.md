@@ -107,3 +107,14 @@ Das Resultat sieht folgendermaßen aus:
 
 ![plot](./readme_images/post.png)<br>
 Der Kommentar könnte wieder kommentiert werden usw. Die Kommentare werden je nach ihrer Hierarchie eingerückt dargestellt. Außerdem kann durch einen Mausklick auf den blau dargestellten namen eines Kommentars zur Profilseite des Verfassers navigiert werden.
+
+## API für externe Dienste
+Der Programmentwurf stellt ebenfalls Endpunkte bereit um Daten in einem JSON-Format erhalten zu können, da es für mögliche externe Applikation unvorteilhaft sein könnte, wenn die Informationen nur eingebettet in HTML Seiten zur Verfügung stehen. Bei diesen Endpunkten handelt es sich ausschließlich um <b>GET</b> Endpunkte. Die Endpunkte unterscheiden sich von den anderen Endpunkten durch eine Namenskonvention, bei der immer ein <b>/api</b> bei den Endpunktnamen vorangestellt ist. Dies sind die verfügbaren Endpunkte:
+<ul>
+    <li><b>/api/persons?page=0&pageSize=5</b>: Stellt alle Personen zur Verfügung. Pagination ist optional, beinhaltet aber die Default Parameter wie links angegeben.</li>
+    <li><b>/api/persons/{id}</b>: Stellt eine Person mit der angegebenen {id} zur Verfügung.</li>
+    <li><b>/api/persons/{id}/posts</b>: Stellt alle Beiträge einer Person mit allen Kommentaren der Beiträte und der Kommentare der Kommentare des Beitrages zur Verfügung. (Dieser Endpunkt enthält nich zwangsläufig alle Kommentare der Person)</li>
+    <li><b>/api/persons/{id}/spouse</b>: Stellt den Ehepartner der Person zur Verfügung.</li>
+    <li><b>/api/persons/{id}/friends?page=0&pageSize=5</b>: Stellt alle Freunde einer Person mit der {id} zur Verfügung. Pagination ist optional, beinhaltet aber die Default Parameter wie links angegeben.</li>
+    <li><b>/api/persons/{id}/family?page=0&pageSize=5</b>: Stellt alle Familienmitglieder einer Person mit der {id} zur Verfügung. Pagination ist optional, beinhaltet aber die Default Parameter wie links angegeben.</li>
+</ul>
